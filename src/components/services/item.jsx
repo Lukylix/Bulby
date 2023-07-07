@@ -73,7 +73,7 @@ export default function Item({ service, group }) {
               </div>
             </div>
           )}
-          <div className="absolute top-0 right-0 flex flex-row justify-end gap-2 mr-2">
+          <div className="absolute top-0 right-0 flex flex-row justify-end gap-2 mr-2 z-10">
             {service.ping && (
               <div className="flex-shrink-0 flex items-center justify-center cursor-pointer">
                 <Ping group={group} service={service.name} />
@@ -85,7 +85,9 @@ export default function Item({ service, group }) {
               <button
                 type="button"
                 onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
-                className="flex-shrink-0 flex items-center justify-center cursor-pointer"
+                className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
+                  (settings?.status?.type === "dot" && "p-2 absolute top-0 -right-1.5") || ""
+                }`}
               >
                 <Status service={service} />
                 <span className="sr-only">View container stats</span>
