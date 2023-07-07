@@ -14,7 +14,7 @@ import ResolvedIcon from "components/resolvedicon";
 export default function Item({ service, group }) {
   const hasLink = service.href && service.href !== "#";
   const { settings } = useContext(SettingsContext);
-  const showStats = (service.showStats === false) ? false : settings.showStats;
+  const showStats = service.showStats === false ? false : settings.showStats;
   const [statsOpen, setStatsOpen] = useState(service.showStats);
   const [statsClosing, setStatsClosing] = useState(false);
 
@@ -74,34 +74,34 @@ export default function Item({ service, group }) {
             </div>
           )}
 
-          <div className="absolute top-0 right-0 w-1/2 flex flex-row justify-end gap-2 mr-2">
-              {service.ping && (
-                <div className="flex-shrink-0 flex items-center justify-center cursor-pointer">
-                  <Ping group={group} service={service.name} />
-                  <span className="sr-only">Ping status</span>
-                </div>
-              )}
+          <div className="absolute top-0 right-0 w-1/2 flex flex-row justify-end gap-2 mr-2 relative">
+            {service.ping && (
+              <div className="flex-shrink-0 flex items-center justify-center cursor-pointer">
+                <Ping group={group} service={service.name} />
+                <span className="sr-only">Ping status</span>
+              </div>
+            )}
 
-              {service.container && (
-                <button
-                  type="button"
-                  onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
-                  className="flex-shrink-0 flex items-center justify-center cursor-pointer"
-                >
-                  <Status service={service} />
-                  <span className="sr-only">View container stats</span>
-                </button>
-              )}
-              {(service.app && !service.external) && (
-                <button
-                  type="button"
-                  onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
-                  className="flex-shrink-0 flex items-center justify-center cursor-pointer"
-                >
-                  <KubernetesStatus service={service} />
-                  <span className="sr-only">View container stats</span>
-                </button>
-              )}
+            {service.container && (
+              <button
+                type="button"
+                onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
+                className="flex-shrink-0 flex items-center justify-center cursor-pointer"
+              >
+                <Status service={service} />
+                <span className="sr-only">View container stats</span>
+              </button>
+            )}
+            {service.app && !service.external && (
+              <button
+                type="button"
+                onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
+                className="flex-shrink-0 flex items-center justify-center cursor-pointer"
+              >
+                <KubernetesStatus service={service} />
+                <span className="sr-only">View container stats</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -112,7 +112,9 @@ export default function Item({ service, group }) {
               "w-full overflow-hidden transition-all duration-300 ease-in-out"
             )}
           >
-            {(showStats || statsOpen) && <Docker service={{ widget: { container: service.container, server: service.server } }} />}
+            {(showStats || statsOpen) && (
+              <Docker service={{ widget: { container: service.container, server: service.server } }} />
+            )}
           </div>
         )}
         {service.app && (
@@ -122,7 +124,13 @@ export default function Item({ service, group }) {
               "w-full overflow-hidden transition-all duration-300 ease-in-out"
             )}
           >
-            {(showStats || statsOpen) && <Kubernetes service={{ widget: { namespace: service.namespace, app: service.app, podSelector: service.podSelector } }} />}
+            {(showStats || statsOpen) && (
+              <Kubernetes
+                service={{
+                  widget: { namespace: service.namespace, app: service.app, podSelector: service.podSelector },
+                }}
+              />
+            )}
           </div>
         )}
 
