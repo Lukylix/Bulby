@@ -73,8 +73,7 @@ export default function Item({ service, group }) {
               </div>
             </div>
           )}
-
-          <div className="absolute top-0 right-0 w-1/2 flex flex-row justify-end gap-2 mr-2 relative">
+          <div className="absolute top-0 right-0 flex flex-row justify-end gap-2 mr-2">
             {service.ping && (
               <div className="flex-shrink-0 flex items-center justify-center cursor-pointer">
                 <Ping group={group} service={service.name} />
