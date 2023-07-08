@@ -29,7 +29,7 @@ const subcolumnMap = [
 export default function List({ group, services, layout, isGroup = false }) {
   let gridClassName = isGroup ? subcolumnMap[layout?.columns] : columnMap[layout?.columns];
   if (gridClassName) gridClassName = `grid auto-rows-max ${gridClassName} gap-x-2`;
-  if (!gridClassName) gridClassName = "flex flex-wrap gap-x-2";
+  if (!gridClassName) gridClassName = " flex flex-wrap gap-x-2";
 
   return (
     <ul
