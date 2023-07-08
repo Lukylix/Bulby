@@ -30,6 +30,15 @@ export default function Item({ service, group }) {
     }
   };
 
+  const headerGridClass = `grid-cols-[${(service.icon && "auto_") || ""}${
+    ((service.name || service.description) && "1fr") || ""
+  }]`;
+
+  const headerGridClassMap = {
+    "grid-cols-[auto_]": "grid-cols-auto",
+    "grid-cols-[auto_1fr]": "grid-cols-[auto_1fr]",
+  };
+
   return (
     <li key={service.name} className={`${(!service.widget && service.icon && "w-fit") || ""}`}>
       <div
@@ -42,7 +51,7 @@ export default function Item({ service, group }) {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={`grid grid-cols-[${(service.icon && "auto_") || ""}1fr] select-none ${
+          className={`grid ${headerGridClassMap[headerGridClass]}  select-none ${
             (!service.widget && service.icon && "w-fit overflow-hidden transition-all") || ""
           }`}
         >
