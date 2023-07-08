@@ -25,7 +25,7 @@ export default function Status({ service }) {
     if (data.status?.includes("running")) {
       if (data.health === "starting") {
         if (settings?.status?.type === "dot")
-          return <div className="w-2 h-2  bg-theme-500/10 dark:bg-theme-900/50 rounded-full" />;
+          return <div className="w-2 h-2  bg-theme-500/10 dark:bg-theme-900rounded-full" />;
         return (
           <div
             className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
@@ -56,7 +56,7 @@ export default function Status({ service }) {
         statusLabel = data.health === "healthy" ? t("docker.healthy") : data.health;
       }
 
-      if (settings?.status?.type === "dot") return <div className="w-2 h-2  bg-emerald-500/80 rounded-full" />;
+      if (settings?.status?.type === "dot") return <div className="w-2 h-2  bg-emerald-500 rounded-full" />;
       return (
         <div
           className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
@@ -83,7 +83,7 @@ export default function Status({ service }) {
     }
   }
   if (settings?.status?.type === "dot")
-    return <div className="w-2 h-2  bg-theme-500/10 dark:bg-theme-900/50 rounded-full" />;
+    return <div className="w-2 h-2  bg-theme-500/10 dark:bg-theme-900 rounded-full" />;
 
   return (
     <div className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden">

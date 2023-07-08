@@ -18,20 +18,27 @@ export default function ServicesGroup({ group, services, layout, fiveColumns, di
       <Disclosure defaultOpen>
         {({ open }) => (
           <>
-            <Disclosure.Button disabled={disableCollapse} className="flex w-full select-none items-center group">
+            <Disclosure.Button
+              disabled={disableCollapse || Number.isInteger(parseInt(services.name, 10))}
+              className="flex w-full select-none items-center group"
+            >
               {layout?.icon && (
                 <div className="flex-shrink-0 mr-2 w-7 h-7">
                   <ResolvedIcon icon={layout.icon} />
                 </div>
               )}
-              <h2 className="flex text-theme-800 dark:text-theme-300 text-xl font-medium">{services.name}</h2>
-              <MdKeyboardArrowDown
-                className={classNames(
-                  disableCollapse ? "hidden" : "",
-                  "transition-opacity opacity-0 group-hover:opacity-100 ml-auto text-theme-800 dark:text-theme-300 text-xl",
-                  open ? "rotate-180 transform" : ""
-                )}
-              />
+              {Number.isNaN(parseInt(services.name, 10)) && (
+                <h2 className="flex text-theme-800 dark:text-theme-300 text-xl font-medium">{services.name}</h2>
+              )}
+              {Number.isNaN(parseInt(services.name, 10)) && (
+                <MdKeyboardArrowDown
+                  className={classNames(
+                    disableCollapse ? "hidden" : "",
+                    "transition-opacity opacity-0 group-hover:opacity-100 ml-auto text-theme-800 dark:text-theme-300 text-xl",
+                    open ? "rotate-180 transform" : ""
+                  )}
+                />
+              )}
             </Disclosure.Button>
             <Transition
               enter="transition duration-200 ease-out"

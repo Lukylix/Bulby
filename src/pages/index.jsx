@@ -317,9 +317,13 @@ function Home({ initialSettings }) {
               bookmarks.length
             )}`}
           >
-            {bookmarks.map((group) => (
-              <BookmarksGroup key={group.name} group={group} disableCollapse={settings.disableCollapse} />
-            ))}
+            {bookmarks.map((group) =>
+              Number.isNaN(parseInt(group?.name, 10)) ? (
+                <div key={group.name} />
+              ) : (
+                <BookmarksGroup key={group.name} group={group} disableCollapse={settings.disableCollapse} />
+              )
+            )}
           </div>
         )}
 

@@ -30,25 +30,33 @@ export default function Item({ service, group }) {
   };
 
   return (
-    <li key={service.name} className="@container">
+    <li key={service.name} className={`${(!service.widget && service.icon && "w-fit") || ""}`}>
       <div
         className={`${
           hasLink ? "cursor-pointer " : " "
-        }transition-all h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative`}
+        }transition-all h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
+          !service.widget && service.icon && "w-fit"
+        }`}
       >
-        <div className="flex select-none">
+        <div
+          className={`grid grid-cols-[auto_1fr] grid- select-none ${
+            (!service.widget && service.icon && "hover:w-fit overflow-hidden w-8 transition-all") || ""
+          }`}
+        >
           {service.icon &&
             (hasLink ? (
               <a
                 href={service.href}
                 target={service.target ?? settings.target ?? "_blank"}
                 rel="noreferrer"
-                className="flex-shrink-0 flex items-center justify-center w-12 "
+                className={`flex pl-1 ${
+                  (!service.widget && service.icon && "pr-1") || ""
+                } items-center justify-left w-8`}
               >
                 <ResolvedIcon icon={service.icon} />
               </a>
             ) : (
-              <div className="flex-shrink-0 flex items-center justify-center w-12 ">
+              <div className="flex pl-1 items-center  justify-left w-8 ">
                 <ResolvedIcon icon={service.icon} />
               </div>
             ))}
@@ -58,16 +66,17 @@ export default function Item({ service, group }) {
               href={service.href}
               target={service.target ?? settings.target ?? "_blank"}
               rel="noreferrer"
-              className="flex-1 flex items-center justify-between rounded-r-md "
+              className="flex-1 flex items-center justify-between rounded-r-md w-full whitespace-nowrap"
             >
-              <div className="flex-1 px-2 py-2 text-sm text-left">
+              <div className="flex-1 px-2 py-2 text-sm text-left transition-all">
                 {service.name}
+
                 <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
               </div>
             </a>
           ) : (
             <div className="flex-1 flex items-center justify-between rounded-r-md ">
-              <div className="flex-1 px-2 py-2 text-sm text-left">
+              <div className="flex-1 px-2 py-2 text-sm text-left transition-all ">
                 {service.name}
                 <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
               </div>
@@ -86,7 +95,9 @@ export default function Item({ service, group }) {
                 type="button"
                 onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
                 className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
-                  (settings?.status?.type === "dot" && "p-2 absolute top-0 -right-1.5") || ""
+                  (settings?.status?.type === "dot" && "p-2 absolute") || ""
+                } ${(service.widget || !service.icon) && "-top-0.5 -right-2.5"} ${
+                  !service.widget && service.icon && "-top-2 -right-4"
                 }`}
               >
                 <Status service={service} />

@@ -27,11 +27,15 @@ const subcolumnMap = [
 ];
 
 export default function List({ group, services, layout, isGroup = false }) {
+  const gridClassName = isGroup ? subcolumnMap[layout?.columns] : columnMap[layout?.columns];
+
   return (
     <ul
       className={classNames(
-        layout?.style === "row"
-          ? `grid auto-rows-max ${isGroup ? subcolumnMap[layout?.columns] : columnMap[layout?.columns]} gap-x-2`
+        layout?.style === "row" || layout?.style === "auto-row"
+          ? gridClassName
+            ? `grid auto-rows-max ${gridClassName} gap-x-2`
+            : "flex flex-wrap gap-x-2"
           : "flex flex-col",
         isGroup ? undefined : "mt-3"
       )}
