@@ -17,6 +17,7 @@ export default function Item({ service, group }) {
   const showStats = service.showStats === false ? false : settings.showStats;
   const [statsOpen, setStatsOpen] = useState(service.showStats);
   const [statsClosing, setStatsClosing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // set stats to closed after 300ms
   const closeStats = () => {
@@ -37,10 +38,12 @@ export default function Item({ service, group }) {
         }transition-all h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
           !service.widget && service.icon && "w-fit"
         }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={`grid grid-cols-[auto_1fr] grid- select-none ${
-            (!service.widget && service.icon && "hover:w-fit overflow-hidden w-8 transition-all") || ""
+          className={`grid grid-cols-[${(service.icon && "auto_") || ""}1fr] select-none ${
+            (!service.widget && service.icon && "w-fit overflow-hidden transition-all") || ""
           }`}
         >
           {service.icon &&
@@ -51,7 +54,7 @@ export default function Item({ service, group }) {
                 rel="noreferrer"
                 className={`flex pl-1 ${
                   (!service.widget && service.icon && "pr-1") || ""
-                } items-center justify-left w-8`}
+                } items-center justify-left w-10`}
               >
                 <ResolvedIcon icon={service.icon} />
               </a>
@@ -66,19 +69,39 @@ export default function Item({ service, group }) {
               href={service.href}
               target={service.target ?? settings.target ?? "_blank"}
               rel="noreferrer"
-              className="flex-1 flex items-center justify-between rounded-r-md w-full whitespace-nowrap"
+              className={`${
+                (service.widget || !service.icon) && "w-full overflow-hidden"
+              } box-border flex items-center py-2 justify-between rounded-r-md w-full whitespace-nowrap transition-all ${
+                (service.widget || !service.icon) && "px-2"
+              } ${(!service.widget && service.icon && isHovered && "!px-2") || ""}`}
             >
-              <div className="flex-1 px-2 py-2 text-sm text-left transition-all">
+              <div
+                className={`max-w-full text-sm text-left transition-all ${
+                  (service.widget || !service.icon) && "text-ellipsis whitespace-nowrap overflow-hidden ..."
+                }   ${!isHovered && !service.widget && service.icon && "!max-w-0 "}`}
+              >
                 {service.name}
 
                 <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
               </div>
             </a>
           ) : (
-            <div className="flex-1 flex items-center justify-between rounded-r-md ">
-              <div className="flex-1 px-2 py-2 text-sm text-left transition-all ">
-                {service.name}
-                <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
+            <div className="flex-1 py-2 flex">
+              <div
+                className={`${
+                  (service.widget || !service.icon) && "w-full"
+                } flex items-center justify-between rounded-r-md transition-all ${
+                  (service.widget || !service.icon) && "px-2"
+                } ${(!service.widget && service.icon && isHovered && "!px2") || ""}`}
+              >
+                <div
+                  className={`max-w-full text-sm text-left  transition-all ${
+                    (service.widget || !service.icon) && "text-ellipsis whitespace-nowrap overflow-hidden ..."
+                  } ${!isHovered && !service.widget && service.icon && "!max-w-0"}`}
+                >
+                  {service.name}
+                  <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
+                </div>
               </div>
             </div>
           )}
