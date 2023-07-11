@@ -262,7 +262,7 @@ function Home({ initialSettings }) {
         <meta name="theme-color" content={themes[initialSettings.color || "slate"][initialSettings.theme || "dark"]} />
       </Head>
       {initialSettings?.background?.video && (
-        <div className="absolute w-full h-full flex items-center justify-center	">
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center	">
           <video className="object-cover w-full h-full" playsInline autoPlay muted loop>
             <source src={initialSettings?.background?.video} />
           </video>
@@ -301,9 +301,9 @@ function Home({ initialSettings }) {
             </>
           )}
         </div>
-
+        {settings?.main?.position === "bottom" && <div className="flex-grow" />}
         {services?.length > 0 && (
-          <div className="flex flex-wrap p-4 sm:p-8 sm:pt-4 items-start pb-2">
+          <div className="flex flex-wrap p-4 sm:p-8 sm:pt-4 items-start pb-0 sm:pb-0">
             {services.map((group) => (
               <ServicesGroup
                 key={group.name}
@@ -319,16 +319,16 @@ function Home({ initialSettings }) {
 
         {bookmarks?.length > 0 && (
           <div
-            className={`grow flex flex-wrap pt-0 p-4 sm:p-8 gap-2 grid-cols-1 lg:grid-cols-2 lg:grid-cols-${Math.min(
+            className={`grow flex flex-wrap pt-0 sm:pb-0 p-4 pb-0 sm:p-8 gap-2 grid-cols-1 lg:grid-cols-2 lg:grid-cols-${Math.min(
               6,
               bookmarks.length
             )}`}
           >
             {bookmarks.map((group) =>
               Number.isNaN(parseInt(group?.name, 10)) ? (
-                <div key={group.name} />
-              ) : (
                 <BookmarksGroup key={group.name} group={group} disableCollapse={settings.disableCollapse} />
+              ) : (
+                <div key={group.name} />
               )
             )}
           </div>
