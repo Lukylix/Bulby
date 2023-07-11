@@ -40,6 +40,38 @@ function areArraysEqual(array1, array2) {
 
   return sortedArray1 === sortedArray2;
 }
+// eslint-disable-next-line react/display-name
+const Service = memo(
+  ({
+    service,
+    isTopRow = false,
+    servicesToPropagate,
+    layout,
+    group,
+    isStyleCombined,
+    i,
+    setPropagate,
+    setPropagateWrapper,
+  }) =>
+    service.type === "grouped-service" ? (
+      <List
+        key={service.name}
+        group={service.name}
+        services={service.services}
+        layout={{
+          ...layout,
+          columns: isTopRow ? parseInt(service.name, 10) || 1 : service.services?.length,
+          style: "row",
+        }}
+        setPropagate={setPropagate || setPropagateWrapper(i + 1)}
+        propagate={(isStyleCombined && servicesToPropagate[i]) || []}
+        isGroup
+        isStyleCombined={isStyleCombined}
+      />
+    ) : (
+      <Item key={service.container ?? service.app ?? service.name} service={service} group={group} />
+    )
+);
 
 // eslint-disable-next-line react/display-name
 const List = memo(
@@ -128,28 +160,6 @@ const List = memo(
       };
     }, [numberOfServices, layout?.columns]);
 
-    const renderService =
-      (isTopRow = true) =>
-      (service, i) =>
-        service.type === "grouped-service" ? (
-          <List
-            key={service.name}
-            group={service.name}
-            services={service.services}
-            layout={{
-              ...layout,
-              columns: isTopRow ? parseInt(service.name, 10) || 1 : service.services?.length,
-              style: "row",
-            }}
-            setPropagate={setPropagate || setPropagateWrapper(i + 1)}
-            propagate={(isStyleCombinedValue && servicesToPropagate[i]) || []}
-            isGroup
-            isStyleCombined={isStyleCombinedValue}
-          />
-        ) : (
-          <Item key={service.container ?? service.app ?? service.name} service={service} group={group} />
-        );
-
     return (
       <ul
         className={classNames(
@@ -159,7 +169,21 @@ const List = memo(
         )}
         ref={containerRef}
       >
-        {servicesTopAfterPropagate.length > 0 && servicesTopAfterPropagate.map(renderService(true))}
+        {servicesTopAfterPropagate.length > 0 &&
+          servicesTopAfterPropagate.map((service, i) => (
+            <Service
+              key={service.name}
+              service={service}
+              isTopRow
+              servicesToPropagate={servicesToPropagate}
+              isStyleCombined={isStyleCombinedValue}
+              layout={layout}
+              group={group}
+              i={i}
+              setPropagateWrapper={setPropagateWrapper}
+              setPropagate={setPropagate}
+            />
+          ))}
         {servicesBottomRows.length > 0 && !isStyleCombined && (
           <ul
             className={classNames(
@@ -168,7 +192,19 @@ const List = memo(
               "col-span-full"
             )}
           >
-            {servicesBottomRows.map(renderService(false))}
+            {servicesBottomRows.map((service, i) => (
+              <Service
+                key={service.name}
+                service={service}
+                servicesToPropagate={servicesToPropagate}
+                isStyleCombined={isStyleCombinedValue}
+                layout={layout}
+                group={group}
+                i={i}
+                setPropagateWrapper={setPropagateWrapper}
+                setPropagate={setPropagate}
+              />
+            ))}
           </ul>
         )}
       </ul>

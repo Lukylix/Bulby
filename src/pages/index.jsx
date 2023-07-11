@@ -261,6 +261,13 @@ function Home({ initialSettings }) {
         />
         <meta name="theme-color" content={themes[initialSettings.color || "slate"][initialSettings.theme || "dark"]} />
       </Head>
+      {initialSettings?.background?.video && (
+        <div className="absolute w-full h-full flex items-center justify-center	">
+          <video className="object-cover w-full h-full" playsInline autoPlay muted loop>
+            <source src={initialSettings?.background?.video} />
+          </video>
+        </div>
+      )}
       <div className="relative container m-auto flex flex-col justify-start z-10 h-full">
         <div className={classNames("flex flex-row flex-wrap  justify-between", headerStyles[headerStyle])}>
           <QuickLaunch
@@ -362,7 +369,7 @@ export default function Wrapper({ initialSettings, fallback }) {
         rgb(var(--bg-color) / ${opacityValue}),
         rgb(var(--bg-color) / ${opacityValue})
       ),
-      url(${backgroundImage})`;
+      ${(backgroundImage && `url(${backgroundImage})`) || ""}`;
     wrappedStyle.backgroundPosition = "center";
     wrappedStyle.backgroundSize = "cover";
   }

@@ -40,11 +40,11 @@ export default function Item({ service, group }) {
   };
 
   return (
-    <li key={service.name} className={`${(!service.widget && service.icon && "w-fit") || ""}`}>
+    <li key={service.name} className={`${(!service.widget && service.icon && "w-fit") || ""} `}>
       <div
         className={`${
           hasLink ? "cursor-pointer " : " "
-        } h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
+        } backdrop-blur-[4px] dark:bg-white/[0.15] h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
           !service.widget && service.icon && "w-fit"
         }`}
         onMouseEnter={() => setIsHovered(true)}
