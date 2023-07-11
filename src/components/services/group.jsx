@@ -5,19 +5,14 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import List from "components/services/list";
 import ResolvedIcon from "components/resolvedicon";
 
-export default function ServicesGroup({ group, services, layout, fiveColumns, disableCollapse }) {
+export default function ServicesGroup({ group, services, layout, disableCollapse }) {
   return (
     <div
       key={services.name}
-      className={classNames(
-        layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center"
-          ? "basis-full"
-          : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4",
-        (layout?.style !== "row" || layout?.style !== "auto-row" || layout?.style === "auto-row-center") && fiveColumns
-          ? "3xl:basis-1/5"
-          : "",
-        "flex-1 p-1 @container"
-      )}
+      className={`flex-1 p-1 @container ${
+        (layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center") &&
+        "col-span-full w-full"
+      }`}
     >
       <Disclosure defaultOpen>
         {({ open }) => (

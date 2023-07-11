@@ -4,7 +4,7 @@ import Head from "next/head";
 import dynamic from "next/dynamic";
 import classNames from "classnames";
 import { useTranslation } from "next-i18next";
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext, useState, useMemo, useRef } from "react";
 import { BiError } from "react-icons/bi";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -163,11 +163,29 @@ const headerStyles = {
   boxedWidgets: "m-4 mb-0 sm:m-8 sm:mb-0 sm:mt-1",
 };
 
+const columnsMap = [
+  "grid-cols-1",
+  "grid-cols-1",
+  "grid-cols-1 @[34rem]:grid-cols-2",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5 @[102rem]:grid-cols-6",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5 @[102rem]:grid-cols-6 [119rem]:grid-cols-7",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5 @[102rem]:grid-cols-6 [119rem]:grid-cols-7 [136rem]:grid-cols-8",
+];
+
+const columnsRemSizeMap = [1, 1, 17, 17, 17, 17, 17, 17, 17, 17];
+
 function Home({ initialSettings }) {
   const { i18n } = useTranslation();
   const { theme, setTheme } = useContext(ThemeContext);
   const { color, setColor } = useContext(ColorContext);
   const { settings, setSettings } = useContext(SettingsContext);
+
+  const [childrensToSlice, setChildrensToSlice] = useState(0);
+
+  const containerRef = useRef();
 
   useEffect(() => {
     setSettings(initialSettings);
@@ -176,6 +194,54 @@ function Home({ initialSettings }) {
   const { data: services } = useSWR("/api/services");
   const { data: bookmarks } = useSWR("/api/bookmarks");
   const { data: widgets } = useSWR("/api/widgets");
+
+  const widthServices = useMemo(() => {
+    const widthRatio = settings?.main?.widthRatio?.split("/") || [1, 1];
+    return widthRatio[0] / widthRatio[1];
+  }, [settings?.main?.widthRatio]);
+
+  const numberOfServicesWithoutRaws = useMemo(
+    () =>
+      services
+        .filter((e) => e)
+        .filter((g) => {
+          const style = initialSettings.layout?.[g.name]?.style;
+          if (style === "row" || style === "auto-row" || style === "auto-row-center") return false;
+          return true;
+        }).length,
+    [services, initialSettings.layout]
+  );
+
+  const servicesTopRows = useMemo(() => {
+    const indexesToSlice = [];
+    let foundIndexes = 0;
+    for (let i = services.filter((e) => e).length - 1; i > 0; i -= 1) {
+      if (foundIndexes === childrensToSlice) break;
+      const style = initialSettings.layout?.[services.filter((e) => e)?.[i].name]?.style;
+      if (style !== "row" && style !== "auto-row" && style !== "auto-row-center") foundIndexes += 1;
+      indexesToSlice.push(i);
+    }
+
+    const indexToSliceStart = indexesToSlice.sort().shift() || services.filter((e) => e).length;
+
+    return indexesToSlice.length > 0 ? services.filter((v, i) => i < indexToSliceStart) : services.filter((e) => e);
+  }, [services, childrensToSlice, initialSettings.layout]);
+
+  const servicesBottomRows = useMemo(() => {
+    if (childrensToSlice === 0) return [];
+    const indexesToSlice = [];
+    let foundIndexes = 0;
+    for (let i = services.filter((e) => e).length - 1; i > 0; i -= 1) {
+      if (foundIndexes === childrensToSlice) break;
+      const style = initialSettings.layout?.[services.filter((e) => e)?.[i].name]?.style;
+      if (style !== "row" && style !== "auto-row" && style !== "auto-row-center") foundIndexes += 1;
+      indexesToSlice.push(i);
+    }
+
+    const indexToSliceStart = indexesToSlice.sort().shift() || services.filter((e) => e).length;
+
+    return indexesToSlice.length > 0 ? services.filter((v, i) => i >= indexToSliceStart) : services.filter((e) => e);
+  }, [services, childrensToSlice, initialSettings.layout]);
 
   const servicesAndBookmarks = [
     ...services
@@ -236,6 +302,41 @@ function Home({ initialSettings }) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   });
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let i = 0; i < entries.length; i += 1) {
+        const entry = entries[i];
+        const { width } = entry.contentRect;
+        const remSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+        const itemRemSize =
+          columnsRemSizeMap[parseInt(settings?.main?.columns || services.filter((v) => v).length || 1, 10)];
+
+        const remWidth = width / remSize;
+        const maxChildrenFit = Math.floor(remWidth / itemRemSize);
+        if (
+          !itemRemSize ||
+          !maxChildrenFit ||
+          numberOfServicesWithoutRaws < maxChildrenFit ||
+          !(remWidth / itemRemSize > 1)
+        )
+          return setChildrensToSlice(0);
+
+        const toSlice = numberOfServicesWithoutRaws % Math.min(settings?.main?.columns, maxChildrenFit || 1);
+        setChildrensToSlice(toSlice);
+      }
+      return true;
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [containerRef, numberOfServicesWithoutRaws, settings?.main?.columns, services]);
 
   return (
     <>
@@ -302,18 +403,49 @@ function Home({ initialSettings }) {
           )}
         </div>
         {settings?.main?.position === "bottom" && <div className="flex-grow" />}
-        {services?.length > 0 && (
-          <div className="flex flex-wrap p-4 sm:p-8 sm:pt-4 items-start pb-0 sm:pb-0">
-            {services.map((group) => (
-              <ServicesGroup
-                key={group.name}
-                group={group.name}
-                services={group}
-                layout={initialSettings.layout?.[group.name]}
-                fiveColumns={settings.fiveColumns}
-                disableCollapse={settings.disableCollapse}
-              />
-            ))}
+        {servicesTopRows?.length > 0 && (
+          <div className="@container" ref={containerRef}>
+            <div
+              className={`grid ${
+                columnsMap[settings?.main?.columns || services.length]
+              } p-4 sm:p-8 sm:pt-4 items-start pb-0 sm:pb-0 mx-auto`}
+              style={{ width: `${widthServices * 100 || 100}%` }}
+            >
+              {servicesTopRows.map((group) => (
+                <ServicesGroup
+                  key={group.name}
+                  group={group.name}
+                  services={group}
+                  layout={initialSettings.layout?.[group.name]}
+                  fiveColumns={settings.fiveColumns}
+                  disableCollapse={settings.disableCollapse}
+                />
+              ))}
+              {servicesBottomRows?.length > 0 && (
+                <div
+                  className={`grid ${
+                    columnsMap[
+                      servicesBottomRows.filter((g) => {
+                        const style = initialSettings.layout?.[g.name]?.style;
+                        if (style !== "row" && style !== "auto-row" && style !== "auto-row-center") return true;
+                        return false;
+                      }).length
+                    ]
+                  } items-start mx-auto col-span-full w-full`}
+                >
+                  {servicesBottomRows.map((group) => (
+                    <ServicesGroup
+                      key={group.name}
+                      group={group.name}
+                      services={group}
+                      layout={initialSettings.layout?.[group.name]}
+                      fiveColumns={settings.fiveColumns}
+                      disableCollapse={settings.disableCollapse}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
