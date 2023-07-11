@@ -44,7 +44,7 @@ export default function Item({ service, group }) {
       <div
         className={`${
           hasLink ? "cursor-pointer " : " "
-        }transition-all h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
+        } h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
           !service.widget && service.icon && "w-fit"
         }`}
         onMouseEnter={() => setIsHovered(true)}
@@ -52,7 +52,7 @@ export default function Item({ service, group }) {
       >
         <div
           className={`grid ${headerGridClassMap[headerGridClass]}  select-none ${
-            (!service.widget && service.icon && "w-fit overflow-hidden transition-all") || ""
+            (!service.widget && service.icon && "w-fit overflow-hidden") || ""
           }`}
         >
           {service.icon &&
@@ -80,18 +80,18 @@ export default function Item({ service, group }) {
               rel="noreferrer"
               className={`${
                 (service.widget || !service.icon) && "w-full overflow-hidden"
-              } box-border flex items-center py-2 justify-between rounded-r-md w-full whitespace-nowrap transition-all ${
-                (service.widget || !service.icon) && "px-2"
-              } ${(!service.widget && service.icon && isHovered && "!px-2") || ""}`}
+              } box-border flex items-center py-2 justify-between rounded-r-md w-full whitespace-nowrap`}
             >
               <div
-                className={`max-w-full text-sm text-left transition-all ${
+                className={`max-w-2xl w-auto duration-500 text-sm text-left ease-linear transition-all ${
                   (service.widget || !service.icon) && "text-ellipsis whitespace-nowrap overflow-hidden ..."
-                }   ${!isHovered && !service.widget && service.icon && "!max-w-0 "}`}
+                }   ${!isHovered && !service.widget && service.icon && "!max-w-[0] "}`}
               >
-                {service.name}
+                <div className="max-w-full px-2">
+                  {service.name}
 
-                <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
+                  <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
+                </div>
               </div>
             </a>
           ) : (
@@ -99,17 +99,17 @@ export default function Item({ service, group }) {
               <div
                 className={`${
                   (service.widget || !service.icon) && "w-full"
-                } flex items-center justify-between rounded-r-md transition-all ${
-                  (service.widget || !service.icon) && "px-2"
-                } ${(!service.widget && service.icon && isHovered && "!px2") || ""}`}
+                } flex items-center justify-between rounded-r-md px-0`}
               >
                 <div
-                  className={`max-w-full text-sm text-left  transition-all ${
+                  className={`max-w-2xl w-auto duration-500 text-sm text-left ease-linear transition-all ${
                     (service.widget || !service.icon) && "text-ellipsis whitespace-nowrap overflow-hidden ..."
-                  } ${!isHovered && !service.widget && service.icon && "!max-w-0"}`}
+                  } ${!isHovered && !service.widget && service.icon && "!max-w-[0]"}`}
                 >
-                  {service.name}
-                  <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
+                  <div className="max-w-full px-2">
+                    {service.name}
+                    <p className="text-theme-500 dark:text-theme-300 text-xs font-light">{service.description}</p>
+                  </div>
                 </div>
               </div>
             </div>

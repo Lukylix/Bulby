@@ -1,7 +1,7 @@
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 
 import Item from "components/services/item";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const columnMap = [
   "grid-cols-1 md:grid-cols-1 lg:grid-cols-1",
@@ -41,22 +41,12 @@ function areArraysEqual(array1, array2) {
   return sortedArray1 === sortedArray2;
 }
 
+// eslint-disable-next-line react/display-name
 const List = memo(
   ({ group, services, layout, isGroup = false, propagate = [], setPropagate, isStyleCombined = false }) => {
     const containerRef = useRef(null);
     const [childrensToSlice, setChildrensToSlice] = useState(0);
     const [servicesToPropagate, setServicesToPropagate] = useState({});
-
-    const setPropagateWrapper = (id) => {
-      return useCallback(
-        (value) => {
-          console.log(id, value);
-          if (areArraysEqual(servicesToPropagate[id] || [], value)) return;
-          setServicesToPropagate((prev) => ({ ...prev, [id]: value }));
-        },
-        [servicesToPropagate, id]
-      );
-    };
 
     const numberOfServices = useMemo(() => [...propagate, ...services].filter((e) => e).length, [propagate, services]);
     const servicesTopRows = useMemo(
@@ -70,18 +60,15 @@ const List = memo(
 
     const setPropagateCallback = useCallback(setPropagate, [setPropagate]);
 
+    const setPropagateWrapper = (id) => (value) => {
+      if (areArraysEqual(servicesToPropagate[id] || [], value)) return;
+      setServicesToPropagate((prev) => ({ ...prev, [id]: value }));
+    };
+
     useEffect(() => {
-      if (typeof setPropagateCallback !== "function") return console.log("no setPropagateCallback");
+      if (typeof setPropagateCallback !== "function") return;
       setPropagateCallback(servicesBottomRows.length > 0 ? servicesBottomRows : []);
     }, [servicesBottomRows, setPropagateCallback]);
-
-    useEffect(() => {
-      console.log("services bottom row", servicesBottomRows);
-    }, [servicesBottomRows]);
-
-    useEffect(() => {
-      console.log(servicesToPropagate);
-    }, [servicesToPropagate]);
 
     const isStyleCombinedValue = useMemo(
       () => layout?.style === undefined || layout?.style === "grid-combine" || isStyleCombined,
@@ -91,9 +78,8 @@ const List = memo(
     const servicesTopAfterPropagate = useMemo(() => {
       const groupedServiceIndexReverse = [...servicesTopRows].reverse().findIndex((e) => e.type === "grouped-service");
       const groupedServiceIndex = servicesTopRows.length - groupedServiceIndexReverse;
-      const insertIndex = groupedServiceIndex ? groupedServiceIndex : servicesTopRows.length;
+      const insertIndex = groupedServiceIndex || servicesTopRows.length;
       const servicesToAdd = servicesToPropagate[groupedServiceIndex] || [];
-      console.log(groupedServiceIndex, servicesToAdd);
       return [
         ...servicesTopRows.slice(0, insertIndex),
         ...servicesToAdd,
@@ -103,15 +89,15 @@ const List = memo(
 
     const [gridClassNameTop, gridClassNameBottom] = useMemo(() => {
       let gridClassName = isGroup ? subcolumnMap[layout.columns] : columnMap[layout?.columns];
-      let gridClassNameBottom = isGroup
+      let gridClassNameB = isGroup
         ? subcolumnMap[servicesBottomRows?.length]
         : servicesBottomRows[servicesTopRows?.length];
       if (gridClassName) gridClassName = ` grid auto-rows-max ${gridClassName} gap-x-2`;
-      if (gridClassNameBottom) gridClassNameBottom = ` grid auto-rows-max ${gridClassNameBottom} gap-x-2`;
+      if (gridClassNameB) gridClassNameB = ` grid auto-rows-max ${gridClassNameB} gap-x-2`;
       if (!gridClassName) gridClassName = " flex flex-wrap gap-x-2";
-      if (!gridClassNameBottom) gridClassNameBottom = " flex flex-wrap gap-x-2";
-      return [gridClassName, gridClassNameBottom];
-    }, [layout?.columns, servicesBottomRows?.length, servicesTopRows?.length]);
+      if (!gridClassNameB) gridClassNameB = " flex flex-wrap gap-x-2";
+      return [gridClassName, gridClassNameB];
+    }, [layout?.columns, servicesBottomRows, servicesTopRows, isGroup]);
 
     useEffect(() => {
       const resizeObserver = new ResizeObserver((entries) => {
@@ -128,7 +114,6 @@ const List = memo(
             return setChildrensToSlice(0);
 
           const toSlice = numberOfServices % Math.min(maxChildrenFit, layout.columns || 1);
-          console.log(toSlice, maxChildrenFit, layout.columns || 1, numberOfServices);
           setChildrensToSlice(toSlice);
         }
         return true;
@@ -143,6 +128,28 @@ const List = memo(
       };
     }, [numberOfServices, layout?.columns]);
 
+    const renderService =
+      (isTopRow = true) =>
+      (service, i) =>
+        service.type === "grouped-service" ? (
+          <List
+            key={service.name}
+            group={service.name}
+            services={service.services}
+            layout={{
+              ...layout,
+              columns: isTopRow ? parseInt(service.name, 10) || 1 : service.services?.length,
+              style: "row",
+            }}
+            setPropagate={setPropagate || setPropagateWrapper(i + 1)}
+            propagate={(isStyleCombinedValue && servicesToPropagate[i]) || []}
+            isGroup
+            isStyleCombined={isStyleCombinedValue}
+          />
+        ) : (
+          <Item key={service.container ?? service.app ?? service.name} service={service} group={group} />
+        );
+
     return (
       <ul
         className={classNames(
@@ -152,27 +159,7 @@ const List = memo(
         )}
         ref={containerRef}
       >
-        {servicesTopAfterPropagate.length > 0 &&
-          servicesTopAfterPropagate.map((service, i) =>
-            service.type === "grouped-service" ? (
-              <List
-                key={service.name}
-                group={service.name}
-                services={service.services}
-                layout={{
-                  ...layout,
-                  columns: parseInt(service.name, 10) || 1,
-                  style: "row",
-                }}
-                setPropagate={setPropagate || setPropagateWrapper(i + 1)}
-                propagate={(isStyleCombinedValue && servicesToPropagate[i]) || []}
-                isGroup
-                isStyleCombined={isStyleCombinedValue}
-              />
-            ) : (
-              <Item key={service.container ?? service.app ?? service.name} service={service} group={group} />
-            )
-          )}
+        {servicesTopAfterPropagate.length > 0 && servicesTopAfterPropagate.map(renderService(true))}
         {servicesBottomRows.length > 0 && !isStyleCombined && (
           <ul
             className={classNames(
@@ -181,32 +168,11 @@ const List = memo(
               "col-span-full"
             )}
           >
-            {servicesBottomRows.map((service, i) =>
-              service.type === "grouped-service" ? (
-                <List
-                  key={service.name}
-                  group={service.name}
-                  services={service.services}
-                  layout={{
-                    columns: service.services?.length,
-                    style: "row",
-                  }}
-                  setPropagate={setPropagate || setPropagateWrapper(i + 1)}
-                  propagate={servicesToPropagate[i] || []}
-                  isGroup
-                  isStyleCombined={isStyleCombinedValue}
-                  isDeep={isGroup}
-                />
-              ) : (
-                <Item key={service.container ?? service.app ?? service.name} service={service} group={group} />
-              )
-            )}
-            {}
+            {servicesBottomRows.map(renderService(false))}
           </ul>
         )}
       </ul>
     );
   }
 );
-
 export default List;

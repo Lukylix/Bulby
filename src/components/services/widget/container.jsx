@@ -15,13 +15,13 @@ export default function Container({ error = false, children, service }) {
   const subColumnsClassMap = [
     "grid-cols-1",
     "grid-cols-1",
-    "@[12rem]:grid-cols-2",
-    "@[12rem]:grid-cols-2 @[18rem]:grid-cols-3",
-    "@[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4",
-    "@[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5",
-    "@[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6",
-    "@[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6 @[42rem]:grid-cols-7",
-    "@[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6 @[42rem]:grid-cols-7 @[48rem]:grid-cols-8",
+    "grid-cols-1 @[12rem]:grid-cols-2",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6 @[42rem]:grid-cols-7",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6 @[42rem]:grid-cols-7 @[48rem]:grid-cols-8",
   ];
 
   let visibleChildren = childrenArray;
