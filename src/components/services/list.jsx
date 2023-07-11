@@ -163,9 +163,12 @@ const List = memo(
     return (
       <ul
         className={classNames(
-          layout?.style === "row" || layout?.style === "auto-row" ? gridClassNameTop : "flex flex-col",
+          layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center"
+            ? gridClassNameTop
+            : "flex flex-col",
           isGroup ? undefined : "mt-3",
-          "@container"
+          "@container",
+          layout?.style === "auto-row-center" && "justify-center"
         )}
         ref={containerRef}
       >
@@ -187,9 +190,12 @@ const List = memo(
         {servicesBottomRows.length > 0 && !isStyleCombined && (
           <ul
             className={classNames(
-              layout?.style === "row" || layout?.style === "auto-row" ? gridClassNameBottom : "flex flex-col",
+              layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center"
+                ? gridClassNameBottom
+                : "flex flex-col",
               isGroup ? undefined : "mt-3",
-              "col-span-full"
+              "col-span-full",
+              layout?.style === "auto-row-center" && "justify-center"
             )}
           >
             {servicesBottomRows.map((service, i) => (
