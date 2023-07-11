@@ -13,8 +13,7 @@ export default function ServicesGroup({ group, services, layout, fiveColumns, di
         layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center"
           ? "basis-full"
           : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4",
-        (layout?.style !== "row" && layout?.style !== "auto-row") ||
-          (layout?.style === "auto-row-center" && fiveColumns)
+        (layout?.style !== "row" || layout?.style !== "auto-row" || layout?.style === "auto-row-center") && fiveColumns
           ? "3xl:basis-1/5"
           : "",
         "flex-1 p-1 @container"
