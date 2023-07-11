@@ -4,18 +4,6 @@ import classNames from "classnames";
 import Item from "components/services/item";
 
 const columnMap = [
-  "grid-cols-1 md:grid-cols-1 lg:grid-cols-1",
-  "grid-cols-1 md:grid-cols-1 lg:grid-cols-1",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-2",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-5",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-6",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-7",
-  "grid-cols-1 md:grid-cols-2 lg:grid-cols-8",
-];
-
-const subcolumnMap = [
   "grid-cols-1",
   "grid-cols-1",
   "grid-cols-1 @[18rem]:grid-cols-2",
@@ -52,6 +40,7 @@ const Service = memo(
     i,
     setPropagate,
     setPropagateWrapper,
+    isInsideBackpack,
   }) =>
     service.type === "grouped-service" ? (
       <List
@@ -60,7 +49,7 @@ const Service = memo(
         services={service.services}
         layout={{
           ...layout,
-          columns: isTopRow ? parseInt(service.name, 10) || 1 : service.services?.length,
+          columns: layout.columns || (isTopRow ? parseInt(service.name, 10) || 1 : service.services?.length),
           style: "row",
         }}
         setPropagate={setPropagate || setPropagateWrapper(i + 1)}
@@ -69,13 +58,27 @@ const Service = memo(
         isStyleCombined={isStyleCombined}
       />
     ) : (
-      <Item key={service.container ?? service.app ?? service.name} service={service} group={group} />
+      <Item
+        key={service.container ?? service.app ?? service.name}
+        service={service}
+        group={group}
+        isInsideBackpack={isInsideBackpack}
+      />
     )
 );
 
 // eslint-disable-next-line react/display-name
 const List = memo(
-  ({ group, services, layout, isGroup = false, propagate = [], setPropagate, isStyleCombined = false }) => {
+  ({
+    group,
+    services,
+    layout,
+    isGroup = false,
+    propagate = [],
+    setPropagate,
+    isStyleCombined = false,
+    isInsideBackpack = false,
+  }) => {
     const containerRef = useRef(null);
     const [childrensToSlice, setChildrensToSlice] = useState(0);
     const [servicesToPropagate, setServicesToPropagate] = useState({});
@@ -120,9 +123,9 @@ const List = memo(
     }, [servicesTopRows, servicesToPropagate]);
 
     const [gridClassNameTop, gridClassNameBottom] = useMemo(() => {
-      let gridClassName = isGroup ? subcolumnMap[layout.columns] : columnMap[layout?.columns];
+      let gridClassName = isGroup ? columnMap[layout.columns] : columnMap[layout?.columns];
       let gridClassNameB = isGroup
-        ? subcolumnMap[servicesBottomRows?.length]
+        ? columnMap[servicesBottomRows?.length]
         : servicesBottomRows[servicesTopRows?.length];
       if (gridClassName) gridClassName = ` grid auto-rows-max ${gridClassName} gap-x-2`;
       if (gridClassNameB) gridClassNameB = ` grid auto-rows-max ${gridClassNameB} gap-x-2`;
@@ -163,7 +166,10 @@ const List = memo(
     return (
       <ul
         className={classNames(
-          layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center"
+          layout?.style === "row" ||
+            layout?.style === "auto-row" ||
+            layout?.style === "auto-row-center" ||
+            isInsideBackpack
             ? gridClassNameTop
             : "flex flex-col",
           isGroup ? undefined : "mt-3",
@@ -185,12 +191,16 @@ const List = memo(
               i={i}
               setPropagateWrapper={setPropagateWrapper}
               setPropagate={setPropagate}
+              isInsideBackpack={isInsideBackpack}
             />
           ))}
         {servicesBottomRows.length > 0 && !isStyleCombined && (
           <ul
             className={classNames(
-              layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center"
+              layout?.style === "row" ||
+                layout?.style === "auto-row" ||
+                layout?.style === "auto-row-center" ||
+                isInsideBackpack
                 ? gridClassNameBottom
                 : "flex flex-col",
               isGroup ? undefined : "mt-3",
@@ -209,6 +219,7 @@ const List = memo(
                 i={i}
                 setPropagateWrapper={setPropagateWrapper}
                 setPropagate={setPropagate}
+                isInsideBackpack={isInsideBackpack}
               />
             ))}
           </ul>

@@ -1,11 +1,14 @@
 import classNames from "classnames";
 import { Disclosure, Transition } from "@headlessui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { useContext } from "react";
 
 import List from "components/services/list";
 import ResolvedIcon from "components/resolvedicon";
+import { SettingsContext } from "utils/contexts/settings";
 
-export default function ServicesGroup({ group, services, layout, disableCollapse }) {
+export default function ServicesGroup({ group, services, layout, isInsideBackpack = false }) {
+  const { settings } = useContext(SettingsContext);
   return (
     <div
       key={services.name}
@@ -18,7 +21,7 @@ export default function ServicesGroup({ group, services, layout, disableCollapse
         {({ open }) => (
           <>
             <Disclosure.Button
-              disabled={disableCollapse || Number.isInteger(parseInt(services.name, 10))}
+              disabled={settings.disableCollapse || Number.isInteger(parseInt(services.name, 10))}
               className="flex w-full select-none items-center group"
             >
               {layout?.icon && (
@@ -32,7 +35,7 @@ export default function ServicesGroup({ group, services, layout, disableCollapse
               {Number.isNaN(parseInt(services.name, 10)) && (
                 <MdKeyboardArrowDown
                   className={classNames(
-                    disableCollapse ? "hidden" : "",
+                    settings.disableCollapse ? "hidden" : "",
                     "transition-opacity opacity-0 group-hover:opacity-100 ml-auto text-theme-800 dark:text-theme-300 text-xl",
                     open ? "rotate-180 transform" : ""
                   )}
@@ -48,7 +51,7 @@ export default function ServicesGroup({ group, services, layout, disableCollapse
               leaveTo="transform scale-75 opacity-0"
             >
               <Disclosure.Panel>
-                <List group={group} services={services.services} layout={layout} />
+                <List group={group} services={services.services} layout={layout} isInsideBackpack={isInsideBackpack} />
               </Disclosure.Panel>
             </Transition>
           </>

@@ -13,10 +13,10 @@ import getKubeConfig from "utils/config/kubernetes";
 
 const logger = createLogger("service-helpers");
 
-export async function servicesFromConfig() {
-  checkAndCopyConfig("services.yaml");
+export async function backpacksOrServicesFromConfig(configFile) {
+  checkAndCopyConfig(configFile);
 
-  const servicesYaml = path.join(process.cwd(), "config", "services.yaml");
+  const servicesYaml = path.join(process.cwd(), "config", configFile);
   const rawFileContents = await fs.readFile(servicesYaml, "utf8");
   const fileContents = substituteEnvironmentVars(rawFileContents);
   const services = yaml.load(fileContents);
@@ -64,6 +64,14 @@ export async function servicesFromConfig() {
   });
 
   return servicesArray;
+}
+
+export async function servicesFromConfig() {
+  return backpacksOrServicesFromConfig("services.yaml");
+}
+
+export async function backpacksFromConfig() {
+  return backpacksOrServicesFromConfig("backpacks.yaml");
 }
 
 export async function servicesFromDocker() {

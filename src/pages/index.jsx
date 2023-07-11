@@ -18,11 +18,12 @@ import { getSettings } from "utils/config/config";
 import { ColorContext } from "utils/contexts/color";
 import { ThemeContext } from "utils/contexts/theme";
 import { SettingsContext } from "utils/contexts/settings";
-import { bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
+import { backpacksResponse, bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
 import ErrorBoundary from "components/errorboundry";
 import themes from "utils/styles/themes";
 import QuickLaunch from "components/quicklaunch";
 import { getStoredProvider, searchProviders } from "components/widgets/search/search";
+import Backpack from "components/backpacks/item";
 
 const ThemeToggle = dynamic(() => import("components/toggles/theme"), {
   ssr: false,
@@ -47,6 +48,7 @@ export async function getStaticProps() {
     const services = await servicesResponse();
     const bookmarks = await bookmarksResponse();
     const widgets = await widgetsResponse();
+    const backpacks = await backpacksResponse();
 
     return {
       props: {
@@ -56,6 +58,7 @@ export async function getStaticProps() {
           "/api/bookmarks": bookmarks,
           "/api/widgets": widgets,
           "/api/hash": false,
+          "/api/backpacks": backpacks,
         },
         ...(await serverSideTranslations(settings.language ?? "en")),
       },
@@ -72,6 +75,7 @@ export async function getStaticProps() {
           "/api/bookmarks": [],
           "/api/widgets": [],
           "/api/hash": false,
+          "/api/backpacks": [],
         },
         ...(await serverSideTranslations("en")),
       },
@@ -194,6 +198,11 @@ function Home({ initialSettings }) {
   const { data: services } = useSWR("/api/services");
   const { data: bookmarks } = useSWR("/api/bookmarks");
   const { data: widgets } = useSWR("/api/widgets");
+  const { data: backpacks } = useSWR("/api/backpacks");
+
+  useEffect(() => {
+    console.log(backpacks);
+  }, [backpacks]);
 
   const widthServices = useMemo(() => {
     const widthRatio = settings?.main?.widthRatio?.split("/") || [1, 1];
@@ -402,7 +411,14 @@ function Home({ initialSettings }) {
             </>
           )}
         </div>
-        {settings?.main?.position === "bottom" && <div className="flex-grow" />}
+        {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
+        {backpacks.length > 0 && (
+          <div className="flex flex-col flex-grow p-4 sm:p-8 sm:pt-4">
+            {backpacks.map((backpack, i) => (
+              <Backpack key={i} backpack={backpack} i={i} />
+            ))}
+          </div>
+        )}
         {servicesTopRows?.length > 0 && (
           <div className="@container" ref={containerRef}>
             <div
@@ -417,8 +433,6 @@ function Home({ initialSettings }) {
                   group={group.name}
                   services={group}
                   layout={initialSettings.layout?.[group.name]}
-                  fiveColumns={settings.fiveColumns}
-                  disableCollapse={settings.disableCollapse}
                 />
               ))}
               {servicesBottomRows?.length > 0 && (
@@ -439,8 +453,6 @@ function Home({ initialSettings }) {
                       group={group.name}
                       services={group}
                       layout={initialSettings.layout?.[group.name]}
-                      fiveColumns={settings.fiveColumns}
-                      disableCollapse={settings.disableCollapse}
                     />
                   ))}
                 </div>

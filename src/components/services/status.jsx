@@ -24,8 +24,15 @@ export default function Status({ service }) {
 
     if (data.status?.includes("running")) {
       if (data.health === "starting") {
-        if (settings?.status?.type === "dot")
-          return <div className="w-2 h-2  bg-theme-500/10 dark:bg-theme-900rounded-full" />;
+        if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+          return (
+            <div
+              className={`w-3 h-3  bg-theme-500/10 dark:bg-theme-900 rounded-full ${
+                settings?.status?.type === "dot-outline" &&
+                "border-solid border-2 border-theme-200 dark:border-theme-900"
+              }`}
+            />
+          );
         return (
           <div
             className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
@@ -37,7 +44,15 @@ export default function Status({ service }) {
       }
 
       if (data.health === "unhealthy") {
-        if (settings?.status?.type === "dot") return <div className="w-2 h-2  bg-rose-500/80 rounded-full" />;
+        if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+          return (
+            <div
+              className={`w-3 h-3  bg-rose-500/80 rounded-full ${
+                settings?.status?.type === "dot-outline" &&
+                "border-solid border-2 border-theme-200 dark:border-theme-900"
+              }`}
+            />
+          );
         return (
           <div
             className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
@@ -56,7 +71,14 @@ export default function Status({ service }) {
         statusLabel = data.health === "healthy" ? t("docker.healthy") : data.health;
       }
 
-      if (settings?.status?.type === "dot") return <div className="w-2 h-2  bg-emerald-500 rounded-full" />;
+      if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+        return (
+          <div
+            className={`w-3 h-3  bg-emerald-500 rounded-full ${
+              settings?.status?.type === "dot-outline" && "border-solid border-2 border-theme-200 dark:border-theme-900"
+            }`}
+          />
+        );
       return (
         <div
           className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
@@ -71,7 +93,14 @@ export default function Status({ service }) {
       if (data.status === "not found") statusLabel = t("docker.not_found");
       else if (data.status === "exited") statusLabel = t("docker.exited");
       else statusLabel = data.status.replace("partial", t("docker.partial"));
-      if (settings?.status?.type === "dot") return <div className="w-2 h-2  bg-rose-500/80 rounded-full" />;
+      if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+        return (
+          <div
+            className={`w-3 h-3  bg-rose-500/80 rounded-full ${
+              settings?.status?.type === "dot-outline" && "border-solid border-2 border-theme-200 dark:border-theme-900"
+            }`}
+          />
+        );
       return (
         <div
           className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
@@ -82,8 +111,14 @@ export default function Status({ service }) {
       );
     }
   }
-  if (settings?.status?.type === "dot")
-    return <div className="w-2 h-2  bg-theme-500/10 dark:bg-theme-900 rounded-full" />;
+  if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+    return (
+      <div
+        className={`w-3 h-3  bg-theme-500/10 dark:bg-theme-900 rounded-full ${
+          settings?.status?.type === "dot-outline" && "border-solid border-2 border-theme-200 dark:border-theme-900"
+        }`}
+      />
+    );
 
   return (
     <div className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden">

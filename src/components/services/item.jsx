@@ -11,7 +11,7 @@ import Kubernetes from "widgets/kubernetes/component";
 import { SettingsContext } from "utils/contexts/settings";
 import ResolvedIcon from "components/resolvedicon";
 
-export default function Item({ service, group }) {
+export default function Item({ service, group, isInsideBackpack = false }) {
   const hasLink = service.href && service.href !== "#";
   const { settings } = useContext(SettingsContext);
   const showStats = service.showStats === false ? false : settings.showStats;
@@ -42,9 +42,15 @@ export default function Item({ service, group }) {
   return (
     <li key={service.name} className={`${(!service.widget && service.icon && "w-fit") || ""} `}>
       <div
-        className={`${
-          hasLink ? "cursor-pointer " : " "
-        } backdrop-blur-[4px] dark:bg-white/[0.15] h-15 mb-2 p-1 rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 relative ${
+        className={`${hasLink ? "cursor-pointer " : " "} backdrop-blur-[4px] ${
+          (settings?.background?.image || settings?.background?.video) &&
+          !isInsideBackpack &&
+          "bg-white/[0.5] hover:bg-white/[0.3] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
+        } ${
+          isInsideBackpack
+            ? "bg-theme-200/50 dark:bg-theme-900/70 hover:bg-theme-200/30 dark:hover:bg-theme-900/30"
+            : "dark:text-theme-200 dark:hover:text-theme-300 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10"
+        } h-15 mb-2 p-1 rounded-md font-medium text-theme-100 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 relative ${
           !service.widget && service.icon && "w-fit"
         }`}
         onMouseEnter={() => setIsHovered(true)}
@@ -127,7 +133,7 @@ export default function Item({ service, group }) {
                 type="button"
                 onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
                 className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
-                  (settings?.status?.type === "dot" && "p-2 absolute") || ""
+                  settings?.status?.type === "dot" || (settings?.status?.type === "dot-outline" && "p-2 absolute") || ""
                 } ${(service.widget || !service.icon) && "-top-0.5 -right-2.5"} ${
                   !service.widget && service.icon && "-top-2 -right-4"
                 }`}

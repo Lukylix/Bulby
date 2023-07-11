@@ -9,7 +9,8 @@ import {
   servicesFromConfig,
   servicesFromDocker,
   cleanServiceGroups,
-  servicesFromKubernetes
+  servicesFromKubernetes,
+  backpacksFromConfig,
 } from "utils/config/service-helpers";
 import { cleanWidgetGroups, widgetsFromConfig } from "utils/config/widget-helpers";
 
@@ -102,11 +103,13 @@ export async function servicesResponse() {
   }
 
   const mergedGroupsNames = [
-    ...new Set([
-      discoveredDockerServices.map((group) => group.name),
-      discoveredKubernetesServices.map((group) => group.name),
-      configuredServices.map((group) => group.name),
-    ].flat()),
+    ...new Set(
+      [
+        discoveredDockerServices.map((group) => group.name),
+        discoveredKubernetesServices.map((group) => group.name),
+        configuredServices.map((group) => group.name),
+      ].flat()
+    ),
   ];
 
   const sortedGroups = [];
@@ -114,22 +117,23 @@ export async function servicesResponse() {
   const definedLayouts = initialSettings.layout ? Object.keys(initialSettings.layout) : null;
 
   mergedGroupsNames.forEach((groupName) => {
-    const discoveredDockerGroup = discoveredDockerServices.find((group) => group.name === groupName) || { services: [] };
-    const discoveredKubernetesGroup = discoveredKubernetesServices.find((group) => group.name === groupName) || { services: [] };
+    const discoveredDockerGroup = discoveredDockerServices.find((group) => group.name === groupName) || {
+      services: [],
+    };
+    const discoveredKubernetesGroup = discoveredKubernetesServices.find((group) => group.name === groupName) || {
+      services: [],
+    };
     const configuredGroup = configuredServices.find((group) => group.name === groupName) || { services: [] };
 
     const mergedGroup = {
       name: groupName,
-      services: [
-        ...discoveredDockerGroup.services,
-        ...discoveredKubernetesGroup.services,
-        ...configuredGroup.services
-      ].filter((service) => service)
+      services: [...discoveredDockerGroup.services, ...discoveredKubernetesGroup.services, ...configuredGroup.services]
+        .filter((service) => service)
         .sort(compareServices),
     };
 
     if (definedLayouts) {
-      const layoutIndex = definedLayouts.findIndex(layout => layout === mergedGroup.name);
+      const layoutIndex = definedLayouts.findIndex((layout) => layout === mergedGroup.name);
       if (layoutIndex > -1) sortedGroups[layoutIndex] = mergedGroup;
       else unsortedGroups.push(mergedGroup);
     } else {
@@ -137,5 +141,49 @@ export async function servicesResponse() {
     }
   });
 
-  return [...sortedGroups.filter(g => g), ...unsortedGroups];
+  return [...sortedGroups.filter((g) => g), ...unsortedGroups];
+}
+
+export async function backpacksResponse() {
+  let configuredServices;
+  let initialSettings;
+  try {
+    configuredServices = cleanServiceGroups(await backpacksFromConfig());
+  } catch (e) {
+    console.error("Failed to load services.yaml, please check for errors");
+    if (e) console.error(e.toString());
+    configuredServices = [];
+  }
+
+  try {
+    initialSettings = await getSettings();
+  } catch (e) {
+    console.error("Failed to load settings.yaml, please check for errors");
+    if (e) console.error(e.toString());
+    initialSettings = {};
+  }
+  const mergedGroupsNames = [...new Set([configuredServices.map((group) => group.name)].flat())];
+
+  const sortedGroups = [];
+  const unsortedGroups = [];
+  const definedLayouts = initialSettings.layout ? Object.keys(initialSettings.layout) : null;
+
+  mergedGroupsNames.forEach((groupName) => {
+    const configuredGroup = configuredServices.find((group) => group.name === groupName) || { services: [] };
+
+    const mergedGroup = {
+      name: groupName,
+      services: configuredGroup.services.filter((service) => service).sort(compareServices),
+    };
+
+    if (definedLayouts) {
+      const layoutIndex = definedLayouts.findIndex((layout) => layout === mergedGroup.name);
+      if (layoutIndex > -1) sortedGroups[layoutIndex] = mergedGroup;
+      else unsortedGroups.push(mergedGroup);
+    } else {
+      unsortedGroups.push(mergedGroup);
+    }
+  });
+
+  return [...sortedGroups.filter((g) => g), ...unsortedGroups];
 }

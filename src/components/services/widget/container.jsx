@@ -15,13 +15,13 @@ export default function Container({ error = false, children, service }) {
   const subColumnsClassMap = [
     "grid-cols-1",
     "grid-cols-1",
-    "grid-cols-1 @[14rem]:grid-cols-2",
-    "grid-cols-1 @[14rem]:grid-cols-2 @[21rem]:grid-cols-3",
-    "grid-cols-1 @[14rem]:grid-cols-2 @[21rem]:grid-cols-3 @[28rem]:grid-cols-4",
-    "grid-cols-1 @[14rem]:grid-cols-2 @[21rem]:grid-cols-3 @[28rem]:grid-cols-4 @[35rem]:grid-cols-5",
-    "grid-cols-1 @[14rem]:grid-cols-2 @[21rem]:grid-cols-3 @[28rem]:grid-cols-4 @[35rem]:grid-cols-5 @[42rem]:grid-cols-6",
-    "grid-cols-1 @[14rem]:grid-cols-2 @[21rem]:grid-cols-3 @[28rem]:grid-cols-4 @[35rem]:grid-cols-5 @[42rem]:grid-cols-6 @[49rem]:grid-cols-7",
-    "grid-cols-1 @[14rem]:grid-cols-2 @[21rem]:grid-cols-3 @[28rem]:grid-cols-4 @[35rem]:grid-cols-5 @[42rem]:grid-cols-6 @[49rem]:grid-cols-7 @[56rem]:grid-cols-8",
+    "grid-cols-1 @[12rem]:grid-cols-2",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6 @[42rem]:grid-cols-7",
+    "grid-cols-1 @[12rem]:grid-cols-2 @[18rem]:grid-cols-3 @[24rem]:grid-cols-4 @[30rem]:grid-cols-5 @[36rem]:grid-cols-6 @[42rem]:grid-cols-7 @[48rem]:grid-cols-8",
   ];
 
   let visibleChildren = childrenArray;
@@ -55,11 +55,11 @@ export default function Container({ error = false, children, service }) {
         const remSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
         const remWidth = width / remSize;
-        const maxChildrenFit = Math.floor(remWidth / 7);
+        const maxChildrenFit = Math.floor(remWidth / 6);
 
         if (numberOfChildren > 1 && remWidth > 12) {
           if (numberOfChildren <= maxChildrenFit) return setChildrensToSlice(0);
-          setChildrensToSlice(remWidth / 7 > 1 ? numberOfChildren % maxChildrenFit : 0);
+          setChildrensToSlice(remWidth / 6 > 1 ? numberOfChildren % maxChildrenFit : 0);
         }
       }
       return true;
