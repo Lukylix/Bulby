@@ -413,7 +413,7 @@ function Home({ initialSettings }) {
         </div>
         {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
         {backpacks.length > 0 && (
-          <div className="flex flex-col flex-grow p-4 sm:p-8 sm:pt-4">
+          <div className="flex flex-row gap-2 flex-grow p-4 sm:p-8 sm:pt-4">
             {backpacks.map((backpack, i) => (
               <Backpack key={i} backpack={backpack} i={i} />
             ))}

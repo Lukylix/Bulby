@@ -404,7 +404,17 @@ export function cleanServiceGroups(groups) {
 }
 
 export async function getServiceItem(group, service) {
-  const configuredServices = await servicesFromConfig();
+  const services = await servicesFromConfig();
+  const backpacks = await backpacksFromConfig();
+  const configuredServices = [...services, ...backpacks].reduce((acc, curr) => {
+    const index = acc.findIndex((g) => g.name === curr.name);
+    if (index === -1) {
+      acc.push(curr);
+    } else {
+      acc[index] = { ...acc, ...curr, services: [...acc[index].services, ...curr.services] };
+    }
+    return acc;
+  }, []);
 
   const serviceGroup = configuredServices.find((g) => g.name === group);
   if (serviceGroup) {
