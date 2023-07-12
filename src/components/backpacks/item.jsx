@@ -1,9 +1,10 @@
 import { useContext, useMemo, useState } from "react";
 
+import Status from "./status";
+
 import { SettingsContext } from "utils/contexts/settings";
 import ResolvedIcon from "components/resolvedicon";
 import ServicesGroup from "components/services/group";
-import Status from "./status";
 import useBackpackStatus from "hooks/useBackpackStatus";
 
 const headerGridClassMap = {

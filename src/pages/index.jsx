@@ -200,10 +200,6 @@ function Home({ initialSettings }) {
   const { data: widgets } = useSWR("/api/widgets");
   const { data: backpacks } = useSWR("/api/backpacks");
 
-  useEffect(() => {
-    console.log(backpacks);
-  }, [backpacks]);
-
   const widthServices = useMemo(() => {
     const widthRatio = settings?.main?.widthRatio?.split("/") || [1, 1];
     return widthRatio[0] / widthRatio[1];

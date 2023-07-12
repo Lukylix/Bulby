@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { useMemo } from "react";
 
