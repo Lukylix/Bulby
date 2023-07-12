@@ -20,7 +20,7 @@ export default function Status({ status }) {
     );
   }
 
-  if (status === "not found" || status === "exited" || status.startsWith("partial")) {
+  if (status === "not found" || status === "exited" || status?.startsWith("partial")) {
     return (
       <div className="w-3 h-3  bg-rose-500/80 rounded-full border-solid border-2 border-theme-200 dark:border-theme-900" />
     );
