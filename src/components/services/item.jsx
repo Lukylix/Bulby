@@ -133,7 +133,8 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                 type="button"
                 onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
                 className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
-                  settings?.status?.type === "dot" || (settings?.status?.type === "dot-outline" && "p-2 absolute") || ""
+                  ((settings?.status?.type === "dot" || settings?.status?.type === "dot-outline") && "p-2 absolute") ||
+                  ""
                 } ${(service.widget || !service.icon) && "-top-0.5 -right-2.5"} ${
                   !service.widget && service.icon && "-top-2 -right-4"
                 }`}

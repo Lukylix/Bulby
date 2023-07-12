@@ -104,7 +104,7 @@ function BackpackHeader({ service, group, children }) {
       </div>
       <div
         className={`flex-shrink-0 flex items-center justify-center opacity-1 cursor-pointer ${
-          settings?.status?.type === "dot" || (settings?.status?.type === "dot-outline" && "p-2 absolute") || ""
+          ((settings?.status?.type === "dot" || settings?.status?.type === "dot-outline") && "p-2 absolute") || ""
         }  -top-2 -right-2 ${backpackOpen && "!opacity-0"}`}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...propsStyleStatus}
