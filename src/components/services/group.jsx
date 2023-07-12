@@ -29,10 +29,10 @@ export default function ServicesGroup({ group, services, layout, isInsideBackpac
                   <ResolvedIcon icon={layout.icon} />
                 </div>
               )}
-              {Number.isNaN(parseInt(services.name, 10)) && (
+              {Number.isNaN(parseInt(services.name, 10)) && !isInsideBackpack && (
                 <h2 className="flex text-theme-800 dark:text-theme-300 text-xl font-medium">{services.name}</h2>
               )}
-              {Number.isNaN(parseInt(services.name, 10)) && (
+              {Number.isNaN(parseInt(services.name, 10)) && !isInsideBackpack && (
                 <MdKeyboardArrowDown
                   className={classNames(
                     settings.disableCollapse ? "hidden" : "",
