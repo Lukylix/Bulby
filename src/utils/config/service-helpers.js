@@ -406,7 +406,12 @@ export function cleanServiceGroups(groups) {
 export async function getServiceItem(group, service) {
   const services = await servicesFromConfig();
   const backpacks = await backpacksFromConfig();
-  const configuredServices = [...services, ...backpacks].reduce((acc, curr) => {
+  const groupFlat = [...services, ...backpacks].map((g) => ({
+    ...g,
+    services: g.services.map((s) => (s.type === "grouped-service" ? s.services : [s])).flat(1),
+  }));
+
+  const configuredServices = groupFlat.reduce((acc, curr) => {
     const index = acc.findIndex((g) => g.name === curr.name);
     if (index === -1) {
       acc.push(curr);
@@ -417,11 +422,9 @@ export async function getServiceItem(group, service) {
   }, []);
 
   const serviceGroup = configuredServices.find((g) => g.name === group);
+
   if (serviceGroup) {
-    const serviceEntry = serviceGroup.services
-      .map((s) => (s.type === "grouped-service" ? s.services : s))
-      .flat(1)
-      .find((s) => s.name === service);
+    const serviceEntry = serviceGroup.services.find((s) => s.name === service);
     if (serviceEntry) return serviceEntry;
   }
 

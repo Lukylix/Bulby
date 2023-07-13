@@ -7,7 +7,7 @@ function usePingStatus(service, group) {
   });
 
   const statusLabel = useMemo(() => {
-    if (error || !data || data.status > 403 || !data.status) return "error";
+    if (error || data?.error || !data || data?.status > 403 || !data?.status) return "error";
     return "ok";
   }, [data, error]);
 
@@ -33,10 +33,11 @@ function useDockerStatus(service) {
   return [status, error];
 }
 
-export default function useBackpackStatus({ services, group }) {
+export default function useBackpackStatus(services, group) {
   const resolvedServices = [];
-  const dockerServices = services.filter((service) => service.container);
-  const pingServices = services.filter((service) => service.ping);
+  const servicesFlat = services.map((s) => (s.type === "grouped-service" ? s.services : [s])).flat(1);
+  const dockerServices = servicesFlat.filter((service) => service.container);
+  const pingServices = servicesFlat.filter((service) => service.ping);
   for (let i = 0; i < dockerServices.length; i += 1) {
     const service = dockerServices[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -46,7 +47,7 @@ export default function useBackpackStatus({ services, group }) {
   for (let i = 0; i < pingServices.length; i += 1) {
     const service = pingServices[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [data, error, status] = usePingStatus(service, group);
+    const [data, error, status] = usePingStatus(service.name, group);
     resolvedServices.push({ data, status, error, type: "ping" });
   }
   const areServicesOk = resolvedServices.reduce((acc, service) => {
@@ -66,16 +67,3 @@ export default function useBackpackStatus({ services, group }) {
 
   return resolvedServices.length === 0 ? undefined : areServicesOk;
 }
-/*
-
-if (data.health === "starting") {
-        
-}
-
-if (data.health === " starting unhealthy") {
-  
-}
-
-
-
-*/

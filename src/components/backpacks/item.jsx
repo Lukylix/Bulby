@@ -16,7 +16,7 @@ function BackpackHeader({ service, group, children }) {
   const { settings } = useContext(SettingsContext);
   const [backpackOpen, setBackpackOpen] = useState(false);
 
-  const status = useBackpackStatus(service, group);
+  const status = useBackpackStatus(service.services, group);
 
   const headerGridClass = `grid-cols-[${(settings?.backpacks?.[group]?.icon && "auto_") || ""}${
     ((service.name || service.description) && "1fr") || ""
