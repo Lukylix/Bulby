@@ -4,7 +4,7 @@ import { useContext } from "react";
 
 import { SettingsContext } from "../../utils/contexts/settings";
 
-export default function Status({ service }) {
+export default function Status({ service, isDot = false }) {
   const { t } = useTranslation();
   const { settings } = useContext(SettingsContext);
 
@@ -24,7 +24,7 @@ export default function Status({ service }) {
 
     if (data.status?.includes("running")) {
       if (data.health === "starting") {
-        if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+        if (isDot)
           return (
             <div
               className={`h-2 w-2 bg-theme-500/10 dark:bg-theme-900 rounded-full ${
@@ -44,7 +44,7 @@ export default function Status({ service }) {
       }
 
       if (data.health === "unhealthy") {
-        if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+        if (isDot)
           return (
             <div
               className={`h-2 w-2 bg-rose-500/80 rounded-full ${
@@ -71,7 +71,7 @@ export default function Status({ service }) {
         statusLabel = data.health === "healthy" ? t("docker.healthy") : data.health;
       }
 
-      if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+      if (isDot)
         return (
           <div
             className={`h-2 w-2 bg-emerald-500 rounded-full ${
@@ -94,7 +94,7 @@ export default function Status({ service }) {
       if (data.status === "not found") statusLabel = t("docker.not_found");
       else if (data.status === "exited") statusLabel = t("docker.exited");
       else statusLabel = data.status.replace("partial", t("docker.partial"));
-      if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+      if (isDot)
         return (
           <div
             className={`h-2 w-2 bg-rose-500/80 rounded-full ${
@@ -113,7 +113,7 @@ export default function Status({ service }) {
       );
     }
   }
-  if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
+  if (isDot)
     return (
       <div
         className={`w-2 h-2 bg-theme-500/10 dark:bg-theme-900 rounded-full ${

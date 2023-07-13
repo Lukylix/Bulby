@@ -411,7 +411,7 @@ function Home({ initialSettings }) {
         {backpacks.length > 0 && (
           <div
             ref={backpackContainerRef}
-            className="flex flex-col min-[600px]:flex-row gap-2 flex-grow p-4 sm:p-8 sm:pt-4"
+            className="flex flex-col flex-wrap min-[600px]:flex-row gap-2 flex-grow p-4 sm:p-8 sm:pt-4"
           >
             {backpacks.map((backpack, i) => (
               <Backpack key={i} backpack={backpack} i={i} containerRef={backpackContainerRef} />
