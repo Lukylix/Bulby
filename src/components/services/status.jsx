@@ -27,7 +27,7 @@ export default function Status({ service }) {
         if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
           return (
             <div
-              className={`"h-2 w-2" bg-theme-500/10 dark:bg-theme-900 rounded-full ${
+              className={`h-2 w-2 bg-theme-500/10 dark:bg-theme-900 rounded-full ${
                 settings?.status?.type === "dot-outline" &&
                 "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
               }`}
@@ -47,7 +47,7 @@ export default function Status({ service }) {
         if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
           return (
             <div
-              className={`"h-2 w-2" bg-rose-500/80 rounded-full ${
+              className={`h-2 w-2 bg-rose-500/80 rounded-full ${
                 settings?.status?.type === "dot-outline" &&
                 "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
               }`}
@@ -74,7 +74,7 @@ export default function Status({ service }) {
       if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
         return (
           <div
-            className={`"h-2 w-2" bg-emerald-500 rounded-full ${
+            className={`h-2 w-2 bg-emerald-500 rounded-full ${
               settings?.status?.type === "dot-outline" &&
               "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
             }`}
@@ -97,7 +97,7 @@ export default function Status({ service }) {
       if (settings?.status?.type === "dot" || settings?.status?.type === "dot-outline")
         return (
           <div
-            className={`"h-2 w-2" bg-rose-500/80 rounded-full ${
+            className={`h-2 w-2 bg-rose-500/80 rounded-full ${
               settings?.status?.type === "dot-outline" &&
               "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
             }`}
