@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
 import Status from "./status";
 
@@ -12,7 +12,7 @@ const headerGridClassMap = {
   "grid-cols-[auto_1fr]": "grid-cols-[auto_1fr]",
 };
 
-function BackpackHeader({ service, group, children }) {
+function BackpackHeader({ service, group, children, containerWidth }) {
   const { settings } = useContext(SettingsContext);
   const [backpackOpen, setBackpackOpen] = useState(false);
 
@@ -24,21 +24,23 @@ function BackpackHeader({ service, group, children }) {
 
   const widthBackback = useMemo(() => {
     const widthRatio = settings?.backpacks?.[group]?.widthRatio?.split("/") || [1, 1];
-    return widthRatio[0] / widthRatio[1];
 
+    if (containerWidth > 800) return widthRatio[0] / widthRatio[1];
+    if (containerWidth > 600) return widthRatio[0] / widthRatio[1] > 0.5 ? widthRatio[0] / widthRatio[1] : 0.5;
+    return 1;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings?.backpacks?.[group]?.widthRatio]);
+  }, [settings?.backpacks?.[group]?.widthRatio, containerWidth]);
 
   const propsStyleContainer = useMemo(
     () => ({
       style: {
-        width: backpackOpen ? `${widthBackback * 100}%` : "calc(32px + 1rem)",
+        width: backpackOpen ? `${containerWidth * widthBackback}px` : "calc(32px + 1rem)",
         transition: backpackOpen
           ? "max-height 300ms linear 100ms,width 100ms linear"
           : "max-height 300ms linear, width 100ms linear 300ms",
       },
     }),
-    [backpackOpen, widthBackback]
+    [backpackOpen, widthBackback, containerWidth]
   );
 
   const propsStyleStatus = useMemo(
@@ -55,7 +57,7 @@ function BackpackHeader({ service, group, children }) {
       className={`flex flex-col @container ${
         (settings?.background?.image || settings?.background?.video) &&
         "bg-white/[0.5] hover:bg-white/[0.3] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
-      } overflow-hidden h-min max-h-[calc(32px_+_1rem)] pt-1 pl-1 pr-1 ${
+      } overflow-hidden h-min max-h-[calc(32px_+_1rem)] max-w-full pt-1 pl-1 pr-1 ${
         backpackOpen && "!max-h-[80vh]"
       } backdrop-blur-[4px] rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 `}
       // eslint-disable-next-line react/jsx-props-no-spreading
@@ -116,11 +118,17 @@ function BackpackHeader({ service, group, children }) {
   );
 }
 
-export default function Backpack({ backpack, i }) {
+export default function Backpack({ backpack, i, containerRef }) {
   const { settings } = useContext(SettingsContext);
+  const [containerWidth, setContainerWidth] = useState(containerRef?.current?.getBoundingClientRect()?.width || 0);
+
+  useEffect(() => {
+    if (!containerRef?.current) return;
+    if (containerWidth === 0) setContainerWidth(containerRef?.current?.getBoundingClientRect()?.width || 1);
+  }, [containerRef, containerWidth]);
 
   return (
-    <BackpackHeader service={backpack} i={i} group={backpack.name}>
+    <BackpackHeader service={backpack} i={i} group={backpack.name} containerWidth={containerWidth}>
       <ServicesGroup
         group={backpack.name}
         services={backpack}

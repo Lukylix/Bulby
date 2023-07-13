@@ -186,7 +186,7 @@ function Home({ initialSettings }) {
   const { theme, setTheme } = useContext(ThemeContext);
   const { color, setColor } = useContext(ColorContext);
   const { settings, setSettings } = useContext(SettingsContext);
-
+  const backpackContainerRef = useRef();
   const [childrensToSlice, setChildrensToSlice] = useState(0);
 
   const containerRef = useRef();
@@ -409,9 +409,12 @@ function Home({ initialSettings }) {
         </div>
         {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
         {backpacks.length > 0 && (
-          <div className="flex flex-row gap-2 flex-grow p-4 sm:p-8 sm:pt-4">
+          <div
+            ref={backpackContainerRef}
+            className="flex flex-col min-[600px]:flex-row gap-2 flex-grow p-4 sm:p-8 sm:pt-4"
+          >
             {backpacks.map((backpack, i) => (
-              <Backpack key={i} backpack={backpack} i={i} />
+              <Backpack key={i} backpack={backpack} i={i} containerRef={backpackContainerRef} />
             ))}
           </div>
         )}
