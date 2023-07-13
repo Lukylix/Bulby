@@ -40,7 +40,14 @@ export default function Item({ service, group, isInsideBackpack = false }) {
   };
 
   return (
-    <li key={service.name} className={`${(!service.widget && service.icon && "w-fit") || ""} `}>
+    <li
+      key={service.name}
+      className={`${
+        ((settings?.layout?.[group]?.style === "auto-row" || settings?.layout?.[group]?.style === "auto-row-center") &&
+          "w-fit") ||
+        ""
+      } `}
+    >
       <div
         className={`${hasLink ? "cursor-pointer " : " "} backdrop-blur-[4px] ${
           (settings?.background?.image || settings?.background?.video) &&
@@ -51,14 +58,18 @@ export default function Item({ service, group, isInsideBackpack = false }) {
             ? "bg-theme-200/50 dark:bg-theme-900/70 hover:bg-theme-200/30 dark:hover:bg-theme-900/30"
             : "dark:text-theme-200 dark:hover:text-theme-300 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10"
         } h-15 mb-2 p-1 rounded-md font-medium text-theme-100 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 relative ${
-          !service.widget && service.icon && "w-fit"
+          (settings?.layout?.[group]?.style === "auto-row" || settings?.layout?.[group]?.style === "auto-row-center") &&
+          "w-fit"
         }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
           className={`grid ${headerGridClassMap[headerGridClass]}  select-none ${
-            (!service.widget && service.icon && "w-fit overflow-hidden") || ""
+            ((settings?.layout?.[group]?.style === "auto-row" ||
+              settings?.layout?.[group]?.style === "auto-row-center") &&
+              "w-fit overflow-hidden") ||
+            ""
           }`}
         >
           {service.icon &&

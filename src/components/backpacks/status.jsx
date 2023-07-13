@@ -1,4 +1,5 @@
 import { useContext } from "react";
+
 import { SettingsContext } from "utils/contexts/settings";
 
 export default function Status({ status }) {
@@ -18,7 +19,7 @@ export default function Status({ status }) {
         className={`w-2 h-2 ${
           settings?.status?.type === "dot-outline" &&
           "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
-        } bg-theme-500/10 dark:bg-theme-900 rounded-full`}
+        } bg-emerald-500 rounded-full`}
       />
     );
   }

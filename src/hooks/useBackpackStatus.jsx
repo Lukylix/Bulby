@@ -20,31 +20,35 @@ function useDockerStatus(service) {
     if (!data?.status) return "";
 
     if (data?.status?.includes("running")) {
-      return data.health === "healthy" ? "docker.healthy" : data.health;
+      return data.health === "healthy" ? "docker.healthy" : data.status;
     }
 
     if (data.status === "not found" || data.status === "exited" || data?.status?.startsWith("partial")) {
       if (data.status === "not found") return "docker.not_found";
       if (data.status === "exited") return "docker.exited";
     }
+    if (!data.status && !error) return "ok";
     return data.status;
-  }, [data]);
+  }, [data, error]);
 
   return [status, error];
 }
 
 export default function useBackpackStatus(services, group) {
   const resolvedServices = [];
-  const servicesFlat = services.map((s) => (s.type === "grouped-service" ? s.services : [s])).flat(1);
+  const servicesFlat = services
+    .map((s) => (s.type === "grouped-service" ? s.services : [s]))
+    .flat(1)
+    .sort((a, b) => a.weight - b.weight);
   const dockerServices = servicesFlat.filter((service) => service.container);
   const pingServices = servicesFlat.filter((service) => service.ping);
-  for (let i = 0; i < dockerServices.length; i += 1) {
+  for (let i = 0; i < dockerServices?.length; i += 1) {
     const service = dockerServices[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [status, error] = useDockerStatus(service);
     resolvedServices.push({ status, error, type: "docker" });
   }
-  for (let i = 0; i < pingServices.length; i += 1) {
+  for (let i = 0; i < pingServices?.length; i += 1) {
     const service = pingServices[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [data, error, status] = usePingStatus(service.name, group);
@@ -65,5 +69,5 @@ export default function useBackpackStatus(services, group) {
     return acc;
   }, undefined);
 
-  return resolvedServices.length === 0 ? undefined : areServicesOk;
+  return resolvedServices?.length === 0 ? undefined : areServicesOk;
 }
