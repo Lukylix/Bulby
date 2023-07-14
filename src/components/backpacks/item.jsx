@@ -90,11 +90,7 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
       {...propsStyleContainer}
     >
       <div className="overflow-hidden">
-        <div
-          className={`grid ${headerGridClassMap[headerGridClass]}  select-none ${
-            (!service.widget && service.icon && "w-fit overflow-hidden") || ""
-          }`}
-        >
+        <div className={`grid ${headerGridClassMap[headerGridClass]}  select-none w-fit overflow-hidden`}>
           <button
             className="block cursor-pointer col-span-full relative w-fit"
             onClick={() => setBackpackOpen((prev) => !prev)}
@@ -109,7 +105,7 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
             <div className={`grid ${headerGridClassMap[headerGridClass]}  select-none w-fit overflow-hidden`}>
               {settings?.backpacks?.[group]?.icon && (
                 <div className="flex pl-1 pr-1 items-center justify-left w-10">
-                  <ResolvedIcon icon={settings?.backpacks?.[group]?.icon} />
+                  <ResolvedIcon icon={settings?.backpacks?.[group]?.icon || "mdi-bag-personal-outline"} />
                 </div>
               )}
               <div className="w-full overflow-hidden box-border flex items-center py-2 justify-between rounded-r-md w-full whitespace-nowrap">
