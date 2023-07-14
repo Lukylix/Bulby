@@ -174,7 +174,8 @@ const List = memo(
             : "flex flex-col",
           isGroup ? undefined : "mt-3",
           "@container",
-          layout?.style === "auto-row-center" && "justify-center"
+          layout?.style === "auto-row-center" && "justify-center",
+          "gap-2"
         )}
         ref={containerRef}
       >
@@ -205,7 +206,8 @@ const List = memo(
                 : "flex flex-col",
               isGroup ? undefined : "mt-3",
               "col-span-full",
-              layout?.style === "auto-row-center" && "justify-center"
+              layout?.style === "auto-row-center" && "justify-center",
+              "gap-2"
             )}
           >
             {servicesBottomRows.map((service, i) => (

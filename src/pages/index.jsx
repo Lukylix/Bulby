@@ -186,10 +186,12 @@ function Home({ initialSettings }) {
   const { theme, setTheme } = useContext(ThemeContext);
   const { color, setColor } = useContext(ColorContext);
   const { settings, setSettings } = useContext(SettingsContext);
-  const backpackContainerRef = useRef();
+  const [backpackContainerWidth, setBackpackContainerWidth] = useState(0);
+
   const [childrensToSlice, setChildrensToSlice] = useState(0);
 
   const containerRef = useRef();
+  const backpackContainerRef = useRef();
 
   useEffect(() => {
     setSettings(initialSettings);
@@ -343,6 +345,25 @@ function Home({ initialSettings }) {
     };
   }, [containerRef, numberOfServicesWithoutRaws, settings?.main?.columns, services]);
 
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let i = 0; i < entries.length; i += 1) {
+        const entry = entries[i];
+        const { width } = entry.contentRect;
+        setBackpackContainerWidth(width);
+      }
+      return true;
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(backpackContainerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [backpackContainerRef]);
+
   return (
     <>
       <Head>
@@ -409,13 +430,26 @@ function Home({ initialSettings }) {
         </div>
         {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
         {backpacks.length > 0 && (
-          <div
-            ref={backpackContainerRef}
-            className="flex flex-col flex-wrap min-[600px]:flex-row gap-2 flex-grow p-4 sm:p-8 sm:pt-4"
-          >
-            {backpacks.map((backpack, i) => (
-              <Backpack key={i} backpack={backpack} i={i} containerRef={backpackContainerRef} />
-            ))}
+          <div className="p-4 sm:p-8 sm:pt-4 w-full">
+            <div ref={backpackContainerRef} className="flex flex-row flex-wrap gap-2 flex-grow ">
+              {backpacks.map((backpack, i) => (
+                <Backpack
+                  key={i}
+                  backpack={backpack}
+                  containerWidth={backpackContainerWidth}
+                  i={i}
+                  serviceGroupsLength={
+                    services.filter(
+                      (group) =>
+                        group &&
+                        initialSettings?.layout?.[group.name]?.style !== "auto-row" &&
+                        initialSettings?.layout?.[group.name]?.style !== "auto-row-center"
+                    ).length
+                  }
+                  backpacksLength={backpacks.filter((e) => e).length}
+                />
+              ))}
+            </div>
           </div>
         )}
         {servicesTopRows?.length > 0 && (
