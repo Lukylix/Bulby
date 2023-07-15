@@ -45,7 +45,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
       className={`${(settings?.layout?.[group]?.style?.includes("auto-row") && "w-fit") || ""} h-min`}
     >
       <div
-        className={`${hasLink ? "cursor-pointer " : " "} backdrop-blur-[4px] ${
+        className={`${hasLink ? "cursor-pointer " : ""} backdrop-blur-[4px] ${
           (settings?.background?.image || settings?.background?.video) &&
           !isInsideBackpack &&
           "bg-white/[0.5] hover:bg-white/[0.3] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
@@ -156,9 +156,20 @@ export default function Item({ service, group, isInsideBackpack = false }) {
               <button
                 type="button"
                 onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
-                className="flex-shrink-0 flex items-center justify-center cursor-pointer"
+                className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
+                  ((settings?.status?.type.includes("dot") || settings?.layout?.[group]?.style?.includes("auto-row")) &&
+                    "p-2 absolute") ||
+                  ""
+                } ${!settings?.layout?.[group]?.style?.includes("auto-row") && "-top-0.5 -right-2.5"} ${
+                  settings?.layout?.[group]?.style?.includes("auto-row") && "-top-2 -right-4"
+                }`}
               >
-                <KubernetesStatus service={service} />
+                <KubernetesStatus
+                  service={service}
+                  isDot={
+                    settings?.status?.type.includes("dot") || settings?.layout?.[group]?.style?.includes("auto-row")
+                  }
+                />
                 <span className="sr-only">View container stats</span>
               </button>
             )}

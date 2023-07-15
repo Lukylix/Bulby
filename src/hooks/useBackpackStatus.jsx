@@ -12,6 +12,7 @@ function useBackpackStatus(services, group) {
   );
   const dockerServices = useMemo(() => servicesFlat.filter((service) => service.container), [servicesFlat]);
   const pingServices = useMemo(() => servicesFlat.filter((service) => service.ping), [servicesFlat]);
+  const KubernetesStatus = useMemo(() => servicesFlat.filter((service) => service.namespace), [servicesFlat]);
 
   useEffect(() => {
     // Fetch Docker status
@@ -69,9 +70,32 @@ function useBackpackStatus(services, group) {
       setResolvedServices((prevServices) => [...prevServices, ...resolvedPingServices]);
     };
 
+    const fetchKubernetesStatus = async () => {
+      const promises = KubernetesStatus.map(async (service) => {
+        const podSelectorString = service.podSelector !== undefined ? `podSelector=${service.podSelector}` : "";
+        const url = `/api/kubernetes/status/${service.namespace}/${service.app}?${podSelectorString}`;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          const status = (() => {
+            if (!data?.status) return "";
+            return data.status;
+          })();
+          return { status, error: null, type: "kubernetes" };
+        } catch (error) {
+          return { status: "error", error, type: "kubernetes" };
+        }
+      });
+
+      const resolvedKubernetesServices = await Promise.all(promises);
+      setResolvedServices((prevServices) => [...prevServices, ...resolvedKubernetesServices]);
+    };
+
     fetchDockerStatus();
     fetchPingStatus();
-  }, [dockerServices, pingServices, group]);
+    fetchKubernetesStatus();
+  }, [dockerServices, pingServices, KubernetesStatus, group]);
 
   const areServicesOk = resolvedServices.reduce((acc, service) => {
     if (service.type === "docker") {

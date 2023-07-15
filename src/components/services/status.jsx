@@ -11,6 +11,15 @@ export default function Status({ service, isDot = false }) {
   const { data, error } = useSWR(`/api/docker/status/${service.container}/${service.server || ""}`);
 
   if (error) {
+    if (isDot)
+      return (
+        <div
+          className={`h-2 w-2 bg-rose-500/80 rounded-full ${
+            settings?.status?.type === "dot-outline" &&
+            "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
+          }`}
+        />
+      );
     <div
       className="w-auto px-1.5 py-0.5 text-center bg-theme-500/10 dark:bg-theme-900/50 rounded-b-[3px] overflow-hidden"
       title={t("docker.error")}
@@ -27,7 +36,7 @@ export default function Status({ service, isDot = false }) {
         if (isDot)
           return (
             <div
-              className={`h-2 w-2 bg-theme-500/10 dark:bg-theme-900 rounded-full ${
+              className={`h-2 w-2 bg-blue-500/80 rounded-full ${
                 settings?.status?.type === "dot-outline" &&
                 "!w-3 !h-3 border-solid border-2 border-theme-200 dark:border-theme-900"
               }`}
