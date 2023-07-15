@@ -1,6 +1,6 @@
 kind: Simple
 apiVersion: k3d.io/v1alpha3
-name: homepage
+name: bulby
 servers: 1
 agents: 2
 kubeAPI:
@@ -8,7 +8,7 @@ kubeAPI:
   hostPort: "6443"
 image: rancher/k3s:v1.25.5-k3s1
 volumes:
-  - volume: /tmp:/tmp/k3d-homepage
+  - volume: /tmp:/tmp/k3d-bulby
     nodeFilters:
       - all
 ports:
@@ -50,7 +50,7 @@ env:
 registries:
   create:
     name: k3d-registry
-#    host: 0.0.0.0
+    #    host: 0.0.0.0
     hostPort: "55000"
   config: |
     mirrors:

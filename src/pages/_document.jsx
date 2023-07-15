@@ -6,11 +6,10 @@ export default function Document() {
       <Head>
         <meta
           name="description"
-          content="A highly customizable homepage (or startpage / application dashboard) with Docker and service API integrations."
+          content="A highly customizable bulby (or startpage / application dashboard) with Docker and service API integrations."
         />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="manifest" href="/site.webmanifest?v=4" />
-        <link rel="mask-icon" href="/safari-pinned-tab.svg?v=4" color="#1e9cd7" />
       </Head>
       <body>
         <Main />

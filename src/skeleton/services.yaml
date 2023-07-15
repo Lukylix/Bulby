@@ -1,18 +1,18 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/services
+# https://getbulby.dev/en/configs/services
 
 - My First Group:
     - My First Service:
         href: http://localhost/
-        description: Homepage is awesome
+        description: Bulby is awesome
 
 - My Second Group:
     - My Second Service:
         href: http://localhost/
-        description: Homepage is the best
+        description: Bulby is the best
 
 - My Third Group:
     - My Third Service:
         href: http://localhost/
-        description: Homepage is 😎
+        description: Bulby is 😎

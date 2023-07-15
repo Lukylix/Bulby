@@ -1,6 +1,6 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/widgets
+# https://getbulby.dev/en/configs/widgets
 
 - resources:
     cpu: true

@@ -34,7 +34,7 @@ export function Svg({ svgRef = null }) {
           }}
         />
         <linearGradient
-          id="homepage_favicon_gradient"
+          id="bulby_favicon_gradient"
           gradientUnits="userSpaceOnUse"
           x1={200.746}
           y1={225.015}
@@ -57,7 +57,7 @@ export function Svg({ svgRef = null }) {
         <path
           d="M721.8 250.3c0-32.7 22.4-59.3 50.1-59.3H253.1c-27.7 0-50.1 26.5-50.1 59.3v582.2l90.2-75.7-.1-130.3H375v61.8l88-73.8 258.8 217.9V250.6"
           style={{
-            fill: "url(#homepage_favicon_gradient})",
+            fill: "url(#bulby_favicon_gradient})",
           }}
         />
       </g>

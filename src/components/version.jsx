@@ -6,9 +6,11 @@ import { MdNewReleases } from "react-icons/md";
 export default function Version() {
   const { t, i18n } = useTranslation();
 
-  const buildTime = process.env.NEXT_PUBLIC_BUILDTIME?.length ? process.env.NEXT_PUBLIC_BUILDTIME : new Date().toISOString();
+  const buildTime = process.env.NEXT_PUBLIC_BUILDTIME?.length
+    ? process.env.NEXT_PUBLIC_BUILDTIME
+    : new Date().toISOString();
   const revision = process.env.NEXT_PUBLIC_REVISION?.length ? process.env.NEXT_PUBLIC_REVISION : "dev";
-  const version = process.env.NEXT_PUBLIC_VERSION?.length ?  process.env.NEXT_PUBLIC_VERSION : "dev";
+  const version = process.env.NEXT_PUBLIC_VERSION?.length ? process.env.NEXT_PUBLIC_VERSION : "dev";
 
   const { data: releaseData } = useSWR("/api/releases");
 
@@ -33,7 +35,7 @@ export default function Version() {
           </>
         ) : (
           <a
-            href={`https://github.com/benphelps/homepage/releases/tag/${version}`}
+            href={`https://github.com/lukylix/bulby/releases/tag/${version}`}
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 text-xs text-theme-500 dark:text-theme-400 flex flex-row items-center"
@@ -44,7 +46,8 @@ export default function Version() {
       </span>
       {version === "main" || version === "dev" || version === "nightly"
         ? null
-        : releaseData && latestRelease &&
+        : releaseData &&
+          latestRelease &&
           compareVersions(latestRelease.tag_name, version) > 0 && (
             <a
               href={latestRelease.html_url}

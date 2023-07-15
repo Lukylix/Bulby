@@ -34,11 +34,11 @@ RUN npm run telemetry \
 
 # Production image, copy all the files and run next
 FROM docker.io/node:18-alpine AS runner
-LABEL org.opencontainers.image.title "Homepage"
+LABEL org.opencontainers.image.title "Bulby"
 LABEL org.opencontainers.image.description "A self-hosted services landing page, with docker and service integrations."
-LABEL org.opencontainers.image.url="https://github.com/benphelps/homepage"
-LABEL org.opencontainers.image.documentation='https://github.com/benphelps/homepage/wiki'
-LABEL org.opencontainers.image.source='https://github.com/benphelps/homepage'
+LABEL org.opencontainers.image.url="https://github.com/lukylix/bulby"
+LABEL org.opencontainers.image.documentation='https://github.com/lukylix/bulby/wiki'
+LABEL org.opencontainers.image.source='https://github.com/lukylix/bulby'
 LABEL org.opencontainers.image.licenses='Apache-2.0'
 
 ENV NODE_ENV production

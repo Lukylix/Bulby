@@ -108,7 +108,7 @@ export async function servicesFromDocker() {
           const containerName = isSwarm ? shvl.get(container, "Spec.Name") : container.Names[0];
 
           Object.keys(containerLabels).forEach((label) => {
-            if (label.startsWith("homepage.")) {
+            if (label.startsWith("bulby.")) {
               if (!constructedService) {
                 constructedService = {
                   container: containerName.replace(/^\//, ""),
@@ -118,7 +118,7 @@ export async function servicesFromDocker() {
               }
               shvl.set(
                 constructedService,
-                label.replace("homepage.", ""),
+                label.replace("bulby.", ""),
                 substituteEnvironmentVars(containerLabels[label])
               );
             }
@@ -169,7 +169,7 @@ function getUrlFromIngress(ingress) {
 }
 
 export async function servicesFromKubernetes() {
-  const ANNOTATION_BASE = "gethomepage.dev";
+  const ANNOTATION_BASE = "getbulby.dev";
   const ANNOTATION_WIDGET_BASE = `${ANNOTATION_BASE}/widget.`;
   const ANNOTATION_POD_SELECTOR = `${ANNOTATION_BASE}/pod-selector`;
 

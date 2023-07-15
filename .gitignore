@@ -22,7 +22,7 @@
 
 # log files
 error.log
-homepage.log
+bulby.log
 
 # debug
 npm-debug.log*
@@ -40,7 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# homepage
+# bulby
 /config
 
 # IDEs

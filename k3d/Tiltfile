@@ -1,4 +1,4 @@
-docker_build('k3d-registry.localhost:55000/homepage:local', '..',
+docker_build('k3d-registry.localhost:55000/bulby:local', '..',
   dockerfile = "../Dockerfile-tilt",
   build_args={'node_env': 'development'},
   #entrypoint='pnpm run nodemon /app/server.js',
@@ -10,14 +10,14 @@ docker_build('k3d-registry.localhost:55000/homepage:local', '..',
 load('ext://helm_resource', 'helm_resource', 'helm_repo')
 helm_repo('jameswynn', 'https://jameswynn.github.io/helm-charts')
 
-helm_resource('homepage', 'jameswynn/homepage',
+helm_resource('bulby', 'jameswynn/bulby',
   image_deps=[
-    "k3d-registry.localhost:55000/homepage:local"
+    "k3d-registry.localhost:55000/bulby:local"
   ],
   image_keys=[
     ("image.repository", "image.tag")
   ],
-#  image_selector= "k3d-registry.localhost:55000/homepage:local",
+#  image_selector= "k3d-registry.localhost:55000/bulby:local",
   flags=[
     "-f", "k3d-helm-values.yaml",
     "--set", "persistence.dotnext.enabled=true"

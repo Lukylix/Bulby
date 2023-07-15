@@ -1,7 +1,7 @@
 #!/bin/bash
 
 k3d cluster create --config k3d.yaml --wait
-k3d kubeconfig get homepage > kubeconfig
+k3d kubeconfig get bulby > kubeconfig
 chmod 600 kubeconfig
 export KUBECONFIG=$(pwd)/kubeconfig
 

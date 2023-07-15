@@ -1,5 +1,5 @@
 image:
-  repository: k3d-registry.localhost:55000/homepage
+  repository: k3d-registry.localhost:55000/bulby
   tag: local
   pullPolicy: Always
 
@@ -13,17 +13,17 @@ config:
     - My First Group:
         - My First Service:
             href: http://localhost/
-            description: Homepage is awesome
+            description: Bulby is awesome
 
     - My Second Group:
         - My Second Service:
             href: http://localhost/
-            description: Homepage is the best
+            description: Bulby is the best
 
     - My Third Group:
         - My Third Service:
             href: http://localhost/
-            description: Homepage is 😎
+            description: Bulby is 😎
   widgets:
     # show the kubernetes widget, with the cluster summary and individual nodes
     - kubernetes:
@@ -48,7 +48,7 @@ config:
 
 serviceAccount:
   create: true
-  name: homepage
+  name: bulby
 
 enableRbac: true
 
@@ -56,13 +56,13 @@ ingress:
   main:
     enabled: true
     annotations:
-      gethomepage.dev/enabled: "true"
-      gethomepage.dev/name: "Homepage"
-      gethomepage.dev/description: "Dynamically Detected Homepage"
-      gethomepage.dev/group: "Dynamic"
-      gethomepage.dev/icon: "homepage.png"
+      getbulby.dev/enabled: "true"
+      getbulby.dev/name: "Bulby"
+      getbulby.dev/description: "Dynamically Detected Bulby"
+      getbulby.dev/group: "Dynamic"
+      getbulby.dev/icon: "bulby.png"
     hosts:
-      - host: homepage.k3d.localhost
+      - host: bulby.k3d.localhost
         paths:
           - path: /
             pathType: Prefix

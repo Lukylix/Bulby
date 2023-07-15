@@ -1,4 +1,4 @@
 #!/bin/bash
 
-k3d cluster delete homepage
+k3d cluster delete bulby
 rm kubeconfig

@@ -138,7 +138,7 @@ export default async function jdownloaderProxyHandler(req, res) {
     const { username } = widget
     const { password } = widget
 
-    const appKey = "homepage"
+    const appKey = "bulby"
     const loginSecret = sha256(`${username}${password}server`)
     const deviceSecret = sha256(`${username}${password}device`)
     const email = username;

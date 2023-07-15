@@ -6,20 +6,20 @@ body:
   - type: markdown
     attributes:
       value: |
-        Have a question? 👉 [Start a new discussion](https://github.com/benphelps/homepage/discussions/new) or [ask in chat](https://discord.gg/SaPGSzrEZC).
+        Have a question? 👉 [Start a new discussion](https://github.com/lukylix/bulby/discussions/new) or [ask in chat](https://discord.gg/SaPGSzrEZC).
 
         Before opening an issue, please double check:
 
-        - [The troubleshooting guide](https://gethomepage.dev/en/more/troubleshooting/).
-        - [The homepage documentation](https://gethomepage.dev/)
-        - [Existing issues](https://github.com/benphelps/homepage/search?q=&type=issues) and [discussions](https://github.com/benphelps/homepage/search?q=&type=discussions).
+        - [The troubleshooting guide](https://getbulby.dev/en/more/troubleshooting/).
+        - [The bulby documentation](https://getbulby.dev/)
+        - [Existing issues](https://github.com/lukylix/bulby/search?q=&type=issues) and [discussions](https://github.com/lukylix/bulby/search?q=&type=discussions).
   - type: textarea
     id: description
     attributes:
       label: Description
       description: A clear and concise description of what the bug is. If applicable, add screenshots to help explain your problem.
       placeholder: |
-        Currently homepage does not work when...
+        Currently bulby does not work when...
 
         [Screenshot if applicable]
     validations:
@@ -38,7 +38,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: homepage version
+      label: bulby version
       placeholder: e.g. v0.4.18 (4ea2798)
     validations:
       required: true
@@ -73,7 +73,7 @@ body:
     id: troubleshooting
     attributes:
       label: Troubleshooting
-      description: Please include output from your [troubleshooting tests](https://gethomepage.dev/en/more/troubleshooting/#service-widget-errors). If this is a service widget issue and you do not include any information here your issue will be closed. If it is not, indicate e.g. 'n/a'
+      description: Please include output from your [troubleshooting tests](https://getbulby.dev/en/more/troubleshooting/#service-widget-errors). If this is a service widget issue and you do not include any information here your issue will be closed. If it is not, indicate e.g. 'n/a'
     validations:
       required: true
   - type: textarea
@@ -86,9 +86,9 @@ body:
     attributes:
       label: Before submitting, I have made sure to
       options:
-        - label: Check [the documentation](https://gethomepage.dev/)
+        - label: Check [the documentation](https://getbulby.dev/)
           required: true
-        - label: Follow [the troubleshooting guide](https://gethomepage.dev/en/more/troubleshooting/) (please include output above if applicable).
+        - label: Follow [the troubleshooting guide](https://getbulby.dev/en/more/troubleshooting/) (please include output above if applicable).
           required: true
-        - label: Search [existing issues](https://github.com/benphelps/homepage/search?q=&type=issues) and [discussions](https://github.com/benphelps/homepage/search?q=&type=discussions).
+        - label: Search [existing issues](https://github.com/lukylix/bulby/search?q=&type=issues) and [discussions](https://github.com/lukylix/bulby/search?q=&type=discussions).
           required: true

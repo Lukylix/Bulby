@@ -2,17 +2,17 @@
 
 ## Requirements
 
-* Kubernetes 1.19+
-* Metrics service
-* An Ingress controller
+- Kubernetes 1.19+
+- Metrics service
+- An Ingress controller
 
 ## Deployment
 
-Use the unofficial helm chart: https://github.com/jameswynn/helm-charts/tree/main/charts/homepage
+Use the unofficial helm chart: https://github.com/jameswynn/helm-charts/tree/main/charts/bulby
 
 ```sh
 helm repo add jameswynn https://jameswynn.github.io/helm-charts
-helm install my-release jameswynn/homepage
+helm install my-release jameswynn/bulby
 ```
 
 ### Configuration
@@ -59,21 +59,21 @@ Sample yaml:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: homepage
+  name: bulby
   annotations:
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Dynamically Detected Homepage
-    gethomepage.dev/group: Operations
-    gethomepage.dev/icon: homepage.png
-    gethomepage.dev/name: Homepage
+    getbulby.dev/enabled: "true"
+    getbulby.dev/description: Dynamically Detected Bulby
+    getbulby.dev/group: Operations
+    getbulby.dev/icon: bulby.png
+    getbulby.dev/name: Bulby
 spec:
   rules:
-    - host: homepage.example.com
+    - host: bulby.example.com
       http:
         paths:
           - backend:
               service:
-                name: homepage
+                name: bulby
                 port:
                   number: 3000
             path: /
