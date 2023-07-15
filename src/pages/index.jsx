@@ -207,13 +207,13 @@ function Home({ initialSettings }) {
     return widthRatio[0] / widthRatio[1];
   }, [settings?.main?.widthRatio]);
 
-  const numberOfServicesWithoutRaws = useMemo(
+  const numberOfServicesWithoutFullRows = useMemo(
     () =>
       services
         .filter((e) => e)
         .filter((g) => {
           const style = initialSettings.layout?.[g.name]?.style;
-          if (style === "row" || style === "auto-row" || style === "auto-row-center") return false;
+          if (style?.includes("full")) return false;
           return true;
         }).length,
     [services, initialSettings.layout]
@@ -225,7 +225,7 @@ function Home({ initialSettings }) {
     for (let i = services.filter((e) => e).length - 1; i > 0; i -= 1) {
       if (foundIndexes === childrensToSlice) break;
       const style = initialSettings.layout?.[services.filter((e) => e)?.[i].name]?.style;
-      if (style !== "row" && style !== "auto-row" && style !== "auto-row-center") foundIndexes += 1;
+      if (!style?.includes("full")) foundIndexes += 1;
       indexesToSlice.push(i);
     }
 
@@ -241,13 +241,13 @@ function Home({ initialSettings }) {
     for (let i = services.filter((e) => e).length - 1; i > 0; i -= 1) {
       if (foundIndexes === childrensToSlice) break;
       const style = initialSettings.layout?.[services.filter((e) => e)?.[i].name]?.style;
-      if (style !== "row" && style !== "auto-row" && style !== "auto-row-center") foundIndexes += 1;
+      if (!style?.includes("full")) foundIndexes += 1;
       indexesToSlice.push(i);
     }
 
     const indexToSliceStart = indexesToSlice.sort().shift() || services.filter((e) => e).length;
 
-    return indexesToSlice.length > 0 ? services.filter((v, i) => i >= indexToSliceStart) : services.filter((e) => e);
+    return indexesToSlice.length > 0 ? services.filter((v, i) => i >= indexToSliceStart) : [];
   }, [services, childrensToSlice, initialSettings.layout]);
 
   const servicesAndBookmarks = [
@@ -325,12 +325,12 @@ function Home({ initialSettings }) {
         if (
           !itemRemSize ||
           !maxChildrenFit ||
-          numberOfServicesWithoutRaws < maxChildrenFit ||
+          numberOfServicesWithoutFullRows < maxChildrenFit ||
           !(remWidth / itemRemSize > 1)
         )
           return setChildrensToSlice(0);
 
-        const toSlice = numberOfServicesWithoutRaws % Math.min(settings?.main?.columns, maxChildrenFit || 1);
+        const toSlice = numberOfServicesWithoutFullRows % Math.min(settings?.main?.columns, maxChildrenFit || 1);
         setChildrensToSlice(toSlice);
       }
       return true;
@@ -343,7 +343,7 @@ function Home({ initialSettings }) {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [containerRef, numberOfServicesWithoutRaws, settings?.main?.columns, services]);
+  }, [containerRef, numberOfServicesWithoutFullRows, settings?.main?.columns, services]);
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -443,10 +443,7 @@ function Home({ initialSettings }) {
                   i={i}
                   serviceGroupsLength={
                     services.filter(
-                      (group) =>
-                        group &&
-                        initialSettings?.layout?.[group.name]?.style !== "auto-row" &&
-                        initialSettings?.layout?.[group.name]?.style !== "auto-row-center"
+                      (group) => group && initialSettings?.layout?.[group.name]?.style?.includes("auto-row")
                     ).length
                   }
                   backpacksLength={backpacks.filter((e) => e).length}
@@ -477,7 +474,7 @@ function Home({ initialSettings }) {
                     columnsMap[
                       servicesBottomRows.filter((g) => {
                         const style = initialSettings.layout?.[g.name]?.style;
-                        if (style !== "row" && style !== "auto-row" && style !== "auto-row-center") return true;
+                        if (!style?.includes("auto-full")) return true;
                         return false;
                       }).length
                     ]

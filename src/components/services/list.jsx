@@ -50,7 +50,7 @@ const Service = memo(
         layout={{
           ...layout,
           columns: layout.columns || (isTopRow ? parseInt(service.name, 10) || 1 : service.services?.length),
-          style: "row",
+          style: "auto-row",
         }}
         setPropagate={setPropagate || setPropagateWrapper(i + 1)}
         propagate={(isStyleCombined && servicesToPropagate[i]) || []}
@@ -123,16 +123,28 @@ const List = memo(
     }, [servicesTopRows, servicesToPropagate]);
 
     const [gridClassNameTop, gridClassNameBottom] = useMemo(() => {
-      let gridClassName = isGroup ? columnMap[layout.columns] : columnMap[layout?.columns];
-      let gridClassNameB = isGroup
-        ? columnMap[servicesBottomRows?.length]
-        : servicesBottomRows[servicesTopRows?.length];
-      if (gridClassName) gridClassName = ` grid auto-rows-max ${gridClassName} gap-x-2`;
-      if (gridClassNameB) gridClassNameB = ` grid auto-rows-max ${gridClassNameB} gap-x-2`;
-      if (!gridClassName) gridClassName = " flex flex-wrap gap-x-2";
-      if (!gridClassNameB) gridClassNameB = " flex flex-wrap gap-x-2";
+      let gridClassName =
+        !layout?.style?.includes("row") && !layout?.style?.includes("auto") && columnMap[layout?.columns];
+      if (layout?.style?.includes("row") && !layout?.style?.includes("auto"))
+        gridClassName = ` grid auto-rows-max ${columnMap[servicesTopAfterPropagate?.length]}}`;
+      let gridClassNameB = isGroup ? columnMap[servicesBottomRows?.length] : columnMap[servicesTopRows?.length];
+      if (gridClassName) gridClassName = ` grid auto-rows-max ${gridClassName}`;
+      if (gridClassNameB) gridClassNameB = ` grid auto-rows-max ${gridClassNameB}`;
+      const flexClassName = layout?.style?.includes("auto-row")
+        ? " flex flex-wrap flex-row"
+        : " grid auto-rows-max grid-cols-1";
+
+      if (!gridClassName) gridClassName = flexClassName;
+      if (!gridClassNameB) gridClassNameB = flexClassName;
       return [gridClassName, gridClassNameB];
-    }, [layout?.columns, servicesBottomRows, servicesTopRows, isGroup]);
+    }, [
+      layout?.columns,
+      layout?.style,
+      isGroup,
+      servicesBottomRows?.length,
+      servicesTopRows?.length,
+      servicesTopAfterPropagate?.length,
+    ]);
 
     useEffect(() => {
       const resizeObserver = new ResizeObserver((entries) => {
@@ -166,15 +178,10 @@ const List = memo(
     return (
       <ul
         className={classNames(
-          layout?.style === "row" ||
-            layout?.style === "auto-row" ||
-            layout?.style === "auto-row-center" ||
-            isInsideBackpack
-            ? gridClassNameTop
-            : "flex flex-col",
+          gridClassNameTop,
           isGroup ? undefined : "mt-3",
           "@container",
-          layout?.style === "auto-row-center" && "justify-center",
+          layout?.style?.includes("auto-row-center") && "justify-center",
           "gap-2"
         )}
         ref={containerRef}
@@ -198,15 +205,10 @@ const List = memo(
         {servicesBottomRows.length > 0 && !isStyleCombined && (
           <ul
             className={classNames(
-              layout?.style === "row" ||
-                layout?.style === "auto-row" ||
-                layout?.style === "auto-row-center" ||
-                isInsideBackpack
-                ? gridClassNameBottom
-                : "flex flex-col",
+              gridClassNameBottom,
               isGroup ? undefined : "mt-3",
               "col-span-full",
-              layout?.style === "auto-row-center" && "justify-center",
+              layout?.style?.includes("auto-row-center") && "justify-center",
               "gap-2"
             )}
           >

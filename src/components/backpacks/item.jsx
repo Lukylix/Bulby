@@ -16,6 +16,7 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
   const { settings } = useContext(SettingsContext);
   const [backpackOpen, setBackpackOpen] = useState(false);
   const [initialcontainerWidth, setInitialContainerWidth] = useState(containerWidth);
+  const [bodyHeight, setBodyHeight] = useState(500);
 
   useEffect(() => {
     if (initialcontainerWidth === 0 || initialcontainerWidth < containerWidth) setInitialContainerWidth(containerWidth);
@@ -41,8 +42,8 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
   );
 
   const gapsBackpackWidth = useMemo(() => {
-    if (containerWidth > 800) return gapsBackpack * (0.5 * 16) + 1;
-    if (containerWidth > 600) return 0.5 * 16 + 1;
+    if (containerWidth > 800) return gapsBackpack * (0.5 * 16);
+    if (containerWidth > 600) return 0.5 * 16;
     return 0;
   }, [containerWidth, gapsBackpack]);
 
@@ -59,15 +60,28 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
     () => ({
       style: {
         width: desiredWidth,
+        maxHeight: backpackOpen ? `${bodyHeight}px` : undefined,
         maxWidth:
           desiredWidth === "100%" ? "100%" : `${(initialcontainerWidth - gapsBackpackWidth) * widthBacpackRatio}px`,
         transition: backpackOpen
-          ? "max-height 300ms linear 100ms,width 100ms linear"
+          ? "max-height 300ms linear 100ms, width 100ms linear"
           : "max-height 300ms linear, width 100ms linear 300ms",
       },
     }),
-    [backpackOpen, desiredWidth, initialcontainerWidth, gapsBackpackWidth, widthBacpackRatio]
+    [backpackOpen, desiredWidth, initialcontainerWidth, gapsBackpackWidth, widthBacpackRatio, bodyHeight]
   );
+
+  useEffect(() => {
+    const handleBodyHeightChange = () => {
+      setBodyHeight(document.body.clientHeight);
+    };
+
+    window.addEventListener("resize", handleBodyHeightChange);
+
+    return () => {
+      window.removeEventListener("resize", handleBodyHeightChange);
+    };
+  }, []);
 
   const propsStyleStatus = useMemo(
     () => ({
@@ -83,13 +97,11 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
       className={`flex flex-col @container ${
         (settings?.background?.image || settings?.background?.video) &&
         "bg-white/[0.5] hover:bg-white/[0.3] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
-      } overflow-hidden h-min max-h-[calc(32px_+_1rem)] max-w-full p-1 ${
-        backpackOpen && "!max-h-max	"
-      } backdrop-blur-[4px] rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 `}
+      } overflow-hidden h-min max-h-[calc(32px_+_1rem)] max-w-full p-1 backdrop-blur-[4px] rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 `}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...propsStyleContainer}
     >
-      <div className="overflow-hidden">
+      <div>
         <div className={`grid ${headerGridClassMap[headerGridClass]}  select-none w-fit overflow-hidden`}>
           <button
             className="block cursor-pointer col-span-full relative w-fit"

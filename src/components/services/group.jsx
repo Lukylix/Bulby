@@ -10,13 +10,7 @@ import { SettingsContext } from "utils/contexts/settings";
 export default function ServicesGroup({ group, services, layout, isInsideBackpack = false }) {
   const { settings } = useContext(SettingsContext);
   return (
-    <div
-      key={services.name}
-      className={`flex-1 p-1 @container ${
-        (layout?.style === "row" || layout?.style === "auto-row" || layout?.style === "auto-row-center") &&
-        "col-span-full w-full"
-      }`}
-    >
+    <div key={services.name} className={`flex-1 p-1 @container ${layout?.style?.includes("full") && "col-span-full"}`}>
       <Disclosure defaultOpen>
         {({ open }) => (
           <>

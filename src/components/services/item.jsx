@@ -42,11 +42,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
   return (
     <li
       key={service.name}
-      className={`${
-        ((settings?.layout?.[group]?.style === "auto-row" || settings?.layout?.[group]?.style === "auto-row-center") &&
-          "w-fit") ||
-        ""
-      } `}
+      className={`${(settings?.layout?.[group]?.style?.includes("auto-row") && "w-fit") || ""} h-min`}
     >
       <div
         className={`${hasLink ? "cursor-pointer " : " "} backdrop-blur-[4px] ${
@@ -58,18 +54,14 @@ export default function Item({ service, group, isInsideBackpack = false }) {
             ? "bg-theme-200/50 dark:bg-theme-900/70 hover:bg-theme-200/30 dark:hover:bg-theme-900/30"
             : "dark:text-theme-200 dark:hover:text-theme-300 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10"
         } h-15 p-1 rounded-md font-medium text-theme-100 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 relative ${
-          (settings?.layout?.[group]?.style === "auto-row" || settings?.layout?.[group]?.style === "auto-row-center") &&
-          "w-fit"
+          settings?.layout?.[group]?.style?.includes("auto-row") && "w-fit"
         }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
           className={`grid ${headerGridClassMap[headerGridClass]}  select-none ${
-            ((settings?.layout?.[group]?.style === "auto-row" ||
-              settings?.layout?.[group]?.style === "auto-row-center") &&
-              "w-fit overflow-hidden") ||
-            ""
+            (settings?.layout?.[group]?.style?.includes("auto-row") && "w-fit overflow-hidden") || ""
           }`}
         >
           {service.icon &&
@@ -79,7 +71,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                 target={service.target ?? settings.target ?? "_blank"}
                 rel="noreferrer"
                 className={`flex pl-1 ${
-                  (!service.widget && service.icon && "pr-1") || ""
+                  (settings?.layout?.[group]?.style?.includes("auto-row") && "pr-1") || ""
                 } items-center justify-left w-10`}
               >
                 <ResolvedIcon icon={service.icon} />
@@ -96,13 +88,13 @@ export default function Item({ service, group, isInsideBackpack = false }) {
               target={service.target ?? settings.target ?? "_blank"}
               rel="noreferrer"
               className={`${
-                (service.widget || !service.icon) && "w-full overflow-hidden"
+                !settings?.layout?.[group]?.style?.includes("auto") && "w-full overflow-hidden"
               } box-border flex items-center py-2 justify-between rounded-r-md w-full whitespace-nowrap`}
             >
               <div
-                className={`max-w-2xl w-auto duration-500 text-sm text-left ease-linear transition-all ${
-                  (service.widget || !service.icon) && "text-ellipsis whitespace-nowrap overflow-hidden ..."
-                }   ${!isHovered && !service.widget && service.icon && "!max-w-[0] "}`}
+                className={`max-w-2xl w-auto duration-500 text-sm text-left ease-linear transition-all text-ellipsis whitespace-nowrap overflow-hidden ... ${
+                  settings?.layout?.[group]?.style?.includes("auto") && "max-w-[0]"
+                }`}
               >
                 <div className="max-w-full px-2">
                   {service.name}
@@ -121,7 +113,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                 <div
                   className={`max-w-2xl w-auto duration-500 text-sm text-left ease-linear transition-all ${
                     (service.widget || !service.icon) && "text-ellipsis whitespace-nowrap overflow-hidden ..."
-                  } ${!isHovered && !service.widget && service.icon && "!max-w-[0]"}`}
+                  } ${!isHovered && settings?.layout?.[group]?.style?.includes("auto-row") && "!max-w-[0]"}`}
                 >
                   <div className="max-w-full px-2">
                     {service.name}
@@ -146,12 +138,11 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                 className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
                   ((settings?.status?.type === "dot" ||
                     settings?.status?.type === "dot-outline" ||
-                    settings?.layout?.[group]?.style === "auto-row" ||
-                    settings?.layout?.[group]?.style === "auto-row-center") &&
+                    settings?.layout?.[group]?.style?.includes("auto-row")) &&
                     "p-2 absolute") ||
                   ""
-                } ${(service.widget || !service.icon) && "-top-0.5 -right-2.5"} ${
-                  !service.widget && service.icon && "-top-2 -right-4"
+                } ${!settings?.layout?.[group]?.style?.includes("auto-row") && "-top-0.5 -right-2.5"} ${
+                  settings?.layout?.[group]?.style?.includes("auto-row") && "-top-2 -right-4"
                 }`}
               >
                 <Status
@@ -159,8 +150,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                   isDot={
                     settings?.status?.type === "dot" ||
                     settings?.status?.type === "dot-outline" ||
-                    settings?.layout?.[group]?.style === "auto-row" ||
-                    settings?.layout?.[group]?.style === "auto-row-center"
+                    settings?.layout?.[group]?.style?.includes("auto-row")
                   }
                 />
                 <span className="sr-only">View container stats</span>
