@@ -13,6 +13,8 @@ import getKubeConfig from "utils/config/kubernetes";
 
 const logger = createLogger("service-helpers");
 
+export async function backpacksOrServicesFromConfig(configFile) {
+  checkAndCopyConfig(configFile);
 
 export async function servicesFromConfig() {
   checkAndCopyConfig("services.yaml");
@@ -25,27 +27,54 @@ export async function servicesFromConfig() {
   if (!services) {
     return [];
   }
-
   // map easy to write YAML objects into easy to consume JS arrays
+
   const servicesArray = services.map((servicesGroup) => ({
     name: Object.keys(servicesGroup)[0],
-    services: servicesGroup[Object.keys(servicesGroup)[0]].map((entries) => ({
-      name: Object.keys(entries)[0],
-      ...entries[Object.keys(entries)[0]],
-      type: 'service'
-    })),
+    services: servicesGroup[Object.keys(servicesGroup)[0]].map((entries) =>
+      Array.isArray(entries[Object.keys(entries)[0]])
+        ? {
+            name: Object.keys(entries)[0],
+            services: entries[Object.keys(entries)[0]].map((entry) => ({
+              name: Object.keys(entry)[0],
+              ...entry[Object.keys(entry)[0]],
+              type: "service",
+            })),
+            type: "grouped-service",
+          }
+        : {
+            name: Object.keys(entries)[0],
+            ...entries[Object.keys(entries)[0]],
+            type: "service",
+          }
+    ),
   }));
 
   // add default weight to services based on their position in the configuration
   servicesArray.forEach((group, groupIndex) => {
     group.services.forEach((service, serviceIndex) => {
-      if(!service.weight) {
-        servicesArray[groupIndex].services[serviceIndex].weight = (serviceIndex + 1) * 100;
+      if (!service.weight) servicesArray[groupIndex].services[serviceIndex].weight = (serviceIndex + 1) * 100;
+
+      if (service.type === "grouped-service") {
+        service.services.forEach((groupedService, groupedServiceIndex) => {
+          if (!groupedService.weight) {
+            servicesArray[groupIndex].services[serviceIndex].services[groupedServiceIndex].weight =
+              (groupedServiceIndex + 1) * 100;
+          }
+        });
       }
     });
   });
 
   return servicesArray;
+}
+
+export async function servicesFromConfig() {
+  return backpacksOrServicesFromConfig("services.yaml");
+}
+
+export async function backpacksFromConfig() {
+  return backpacksOrServicesFromConfig("backpacks.yaml");
 }
 
 export async function servicesFromDocker() {
@@ -66,7 +95,9 @@ export async function servicesFromDocker() {
         const isSwarm = !!servers[serverName].swarm;
         const docker = new Docker(getDockerArguments(serverName).conn);
         const listProperties = { all: true };
-        const containers = await ((isSwarm) ? docker.listServices(listProperties) : docker.listContainers(listProperties));
+        const containers = await (isSwarm
+          ? docker.listServices(listProperties)
+          : docker.listContainers(listProperties));
 
         // bad docker connections can result in a <Buffer ...> object?
         // in any case, this ensures the result is the expected array
@@ -76,8 +107,8 @@ export async function servicesFromDocker() {
 
         const discovered = containers.map((container) => {
           let constructedService = null;
-          const containerLabels = isSwarm ? shvl.get(container, 'Spec.Labels') : container.Labels;
-          const containerName = isSwarm ? shvl.get(container, 'Spec.Name') : container.Names[0];
+          const containerLabels = isSwarm ? shvl.get(container, "Spec.Labels") : container.Labels;
+          const containerName = isSwarm ? shvl.get(container, "Spec.Name") : container.Names[0];
 
           Object.keys(containerLabels).forEach((label) => {
             if (label.startsWith("homepage.")) {
@@ -85,10 +116,14 @@ export async function servicesFromDocker() {
                 constructedService = {
                   container: containerName.replace(/^\//, ""),
                   server: serverName,
-                  type: 'service'
+                  type: "service",
                 };
               }
-              shvl.set(constructedService, label.replace("homepage.", ""), substituteEnvironmentVars(containerLabels[label]));
+              shvl.set(
+                constructedService,
+                label.replace("homepage.", ""),
+                substituteEnvironmentVars(containerLabels[label])
+              );
             }
           });
 
@@ -132,12 +167,12 @@ export async function servicesFromDocker() {
 function getUrlFromIngress(ingress) {
   const urlHost = ingress.spec.rules[0].host;
   const urlPath = ingress.spec.rules[0].http.paths[0].path;
-  const urlSchema = ingress.spec.tls ? 'https' : 'http';
+  const urlSchema = ingress.spec.tls ? "https" : "http";
   return `${urlSchema}://${urlHost}${urlPath}`;
 }
 
 export async function servicesFromKubernetes() {
-  const ANNOTATION_BASE = 'gethomepage.dev';
+  const ANNOTATION_BASE = "gethomepage.dev";
   const ANNOTATION_WIDGET_BASE = `${ANNOTATION_BASE}/widget.`;
   const ANNOTATION_POD_SELECTOR = `${ANNOTATION_BASE}/pod-selector`;
 
@@ -151,23 +186,36 @@ export async function servicesFromKubernetes() {
     const networking = kc.makeApiClient(NetworkingV1Api);
     const crd = kc.makeApiClient(CustomObjectsApi);
 
-    const ingressList = await networking.listIngressForAllNamespaces(null, null, null, null)
+    const ingressList = await networking
+      .listIngressForAllNamespaces(null, null, null, null)
       .then((response) => response.body)
       .catch((error) => {
         logger.error("Error getting ingresses: %d %s %s", error.statusCode, error.body, error.response);
         return null;
       });
 
-    const traefikIngressList = await crd.listClusterCustomObject("traefik.io", "v1alpha1", "ingressroutes")
+    const traefikIngressList = await crd
+      .listClusterCustomObject("traefik.io", "v1alpha1", "ingressroutes")
       .then((response) => response.body)
       .catch(async (error) => {
-        logger.error("Error getting traefik ingresses from traefik.io: %d %s %s", error.statusCode, error.body, error.response);
+        logger.error(
+          "Error getting traefik ingresses from traefik.io: %d %s %s",
+          error.statusCode,
+          error.body,
+          error.response
+        );
 
         // Fallback to the old traefik CRD group
-        const fallbackIngressList = await crd.listClusterCustomObject("traefik.containo.us", "v1alpha1", "ingressroutes")
+        const fallbackIngressList = await crd
+          .listClusterCustomObject("traefik.containo.us", "v1alpha1", "ingressroutes")
           .then((response) => response.body)
           .catch((fallbackError) => {
-            logger.error("Error getting traefik ingresses from traefik.containo.us: %d %s %s", fallbackError.statusCode, fallbackError.body, fallbackError.response);
+            logger.error(
+              "Error getting traefik ingresses from traefik.containo.us: %d %s %s",
+              fallbackError.statusCode,
+              fallbackError.body,
+              fallbackError.response
+            );
             return null;
           });
 
@@ -175,8 +223,9 @@ export async function servicesFromKubernetes() {
       });
 
     if (traefikIngressList && traefikIngressList.items.length > 0) {
-      const traefikServices = traefikIngressList.items
-      .filter((ingress) => ingress.metadata.annotations && ingress.metadata.annotations[`${ANNOTATION_BASE}/href`])
+      const traefikServices = traefikIngressList.items.filter(
+        (ingress) => ingress.metadata.annotations && ingress.metadata.annotations[`${ANNOTATION_BASE}/href`]
+      );
       ingressList.items.push(...traefikServices);
     }
 
@@ -184,43 +233,51 @@ export async function servicesFromKubernetes() {
       return [];
     }
     const services = ingressList.items
-      .filter((ingress) => ingress.metadata.annotations && ingress.metadata.annotations[`${ANNOTATION_BASE}/enabled`] === 'true')
+      .filter(
+        (ingress) =>
+          ingress.metadata.annotations && ingress.metadata.annotations[`${ANNOTATION_BASE}/enabled`] === "true"
+      )
       .map((ingress) => {
-      let constructedService = {
-        app: ingress.metadata.name,
-        namespace: ingress.metadata.namespace,
-        href: ingress.metadata.annotations[`${ANNOTATION_BASE}/href`] || getUrlFromIngress(ingress),
-        name: ingress.metadata.annotations[`${ANNOTATION_BASE}/name`] || ingress.metadata.name,
-        group: ingress.metadata.annotations[`${ANNOTATION_BASE}/group`] || "Kubernetes",
-        weight: ingress.metadata.annotations[`${ANNOTATION_BASE}/weight`] || '0',
-        icon: ingress.metadata.annotations[`${ANNOTATION_BASE}/icon`] || '',
-        description: ingress.metadata.annotations[`${ANNOTATION_BASE}/description`] || '',
-        external: false,
-        type: 'service'
-      };
-      if (ingress.metadata.annotations[`${ANNOTATION_BASE}/external`]) {
-        constructedService.external = String(ingress.metadata.annotations[`${ANNOTATION_BASE}/external`]).toLowerCase() === "true"
-      }
-      if (ingress.metadata.annotations[ANNOTATION_POD_SELECTOR]) {
-        constructedService.podSelector = ingress.metadata.annotations[ANNOTATION_POD_SELECTOR];
-      }
-      if (ingress.metadata.annotations[`${ANNOTATION_BASE}/ping`]) {
-        constructedService.ping = ingress.metadata.annotations[`${ANNOTATION_BASE}/ping`];
-      }
-      Object.keys(ingress.metadata.annotations).forEach((annotation) => {
-        if (annotation.startsWith(ANNOTATION_WIDGET_BASE)) {
-          shvl.set(constructedService, annotation.replace(`${ANNOTATION_BASE}/`, ""), ingress.metadata.annotations[annotation]);
+        let constructedService = {
+          app: ingress.metadata.name,
+          namespace: ingress.metadata.namespace,
+          href: ingress.metadata.annotations[`${ANNOTATION_BASE}/href`] || getUrlFromIngress(ingress),
+          name: ingress.metadata.annotations[`${ANNOTATION_BASE}/name`] || ingress.metadata.name,
+          group: ingress.metadata.annotations[`${ANNOTATION_BASE}/group`] || "Kubernetes",
+          weight: ingress.metadata.annotations[`${ANNOTATION_BASE}/weight`] || "0",
+          icon: ingress.metadata.annotations[`${ANNOTATION_BASE}/icon`] || "",
+          description: ingress.metadata.annotations[`${ANNOTATION_BASE}/description`] || "",
+          external: false,
+          type: "service",
+        };
+        if (ingress.metadata.annotations[`${ANNOTATION_BASE}/external`]) {
+          constructedService.external =
+            String(ingress.metadata.annotations[`${ANNOTATION_BASE}/external`]).toLowerCase() === "true";
         }
+        if (ingress.metadata.annotations[ANNOTATION_POD_SELECTOR]) {
+          constructedService.podSelector = ingress.metadata.annotations[ANNOTATION_POD_SELECTOR];
+        }
+        if (ingress.metadata.annotations[`${ANNOTATION_BASE}/ping`]) {
+          constructedService.ping = ingress.metadata.annotations[`${ANNOTATION_BASE}/ping`];
+        }
+        Object.keys(ingress.metadata.annotations).forEach((annotation) => {
+          if (annotation.startsWith(ANNOTATION_WIDGET_BASE)) {
+            shvl.set(
+              constructedService,
+              annotation.replace(`${ANNOTATION_BASE}/`, ""),
+              ingress.metadata.annotations[annotation]
+            );
+          }
+        });
+
+        try {
+          constructedService = JSON.parse(substituteEnvironmentVars(JSON.stringify(constructedService)));
+        } catch (e) {
+          logger.error("Error attempting k8s environment variable substitution.");
+        }
+
+        return constructedService;
       });
-
-      try {
-        constructedService = JSON.parse(substituteEnvironmentVars(JSON.stringify(constructedService)));
-      } catch (e) {
-        logger.error("Error attempting k8s environment variable substitution.");
-      }
-
-      return constructedService;
-    });
 
     const mappedServiceGroups = [];
 
@@ -244,16 +301,108 @@ export async function servicesFromKubernetes() {
     });
 
     return mappedServiceGroups;
-
   } catch (e) {
     logger.error(e);
     throw e;
   }
 }
 
+export function cleanService(service, serviceGroup) {
+  const cleanedService =
+    service.type === "grouped-service"
+      ? { ...service, services: service.services.map((s) => cleanService(s, serviceGroup)) }
+      : { ...service };
+  if (cleanedService.showStats !== undefined) cleanedService.showStats = JSON.parse(cleanedService.showStats);
+  if (typeof service.weight === "string") {
+    const weight = parseInt(service.weight, 10);
+    if (Number.isNaN(weight)) {
+      cleanedService.weight = 0;
+    } else {
+      cleanedService.weight = weight;
+    }
+  }
+  if (typeof cleanedService.weight !== "number") {
+    cleanedService.weight = 0;
+  }
+
+  if (cleanedService.widget) {
+    // whitelisted set of keys to pass to the frontend
+    const {
+      type, // all widgets
+      fields,
+      hideErrors,
+      server, // docker widget
+      container,
+      currency, // coinmarketcap widget
+      symbols,
+      defaultinterval,
+      site, // unifi widget
+      namespace, // kubernetes widget
+      app,
+      podSelector,
+      wan, // opnsense widget, pfsense widget
+      enableBlocks, // emby/jellyfin
+      enableNowPlaying,
+      volume, // diskstation widget,
+      enableQueue, // sonarr/radarr
+    } = cleanedService.widget;
+
+    let fieldsList = fields;
+    if (typeof fields === "string") {
+      try {
+        JSON.parse(fields);
+      } catch (e) {
+        logger.error("Invalid fields list detected in config for service '%s'", service.name);
+        fieldsList = null;
+      }
+    }
+
+    cleanedService.widget = {
+      type,
+      fields: fieldsList || null,
+      hide_errors: hideErrors || false,
+      service_name: service.name,
+      service_group: serviceGroup.name,
+    };
+
+    if (currency) cleanedService.widget.currency = currency;
+    if (symbols) cleanedService.widget.symbols = symbols;
+    if (defaultinterval) cleanedService.widget.defaultinterval = defaultinterval;
+
+    if (type === "docker") {
+      if (server) cleanedService.widget.server = server;
+      if (container) cleanedService.widget.container = container;
+    }
+    if (type === "unifi") {
+      if (site) cleanedService.widget.site = site;
+    }
+    if (type === "kubernetes") {
+      if (namespace) cleanedService.widget.namespace = namespace;
+      if (app) cleanedService.widget.app = app;
+      if (podSelector) cleanedService.widget.podSelector = podSelector;
+    }
+    if (["opnsense", "pfsense"].includes(type)) {
+      if (wan) cleanedService.widget.wan = wan;
+    }
+    if (["emby", "jellyfin"].includes(type)) {
+      if (enableBlocks !== undefined) cleanedService.widget.enableBlocks = JSON.parse(enableBlocks);
+      if (enableNowPlaying !== undefined) cleanedService.widget.enableNowPlaying = JSON.parse(enableNowPlaying);
+    }
+    if (["sonarr", "radarr"].includes(type)) {
+      if (enableQueue !== undefined) cleanedService.widget.enableQueue = JSON.parse(enableQueue);
+    }
+    if (["diskstation", "qnap"].includes(type)) {
+      if (volume) cleanedService.widget.volume = volume;
+    }
+  }
+
+  return cleanedService;
+}
+
 export function cleanServiceGroups(groups) {
   return groups.map((serviceGroup) => ({
     name: serviceGroup.name,
+<<<<<<< HEAD
     services: serviceGroup.services.map((service) => {
       const cleanedService = { ...service };
       if (cleanedService.showStats !== undefined) cleanedService.showStats = JSON.parse(cleanedService.showStats);
@@ -345,13 +494,32 @@ export function cleanServiceGroups(groups) {
 
       return cleanedService;
     }),
+=======
+    services: serviceGroup.services.map((service) => cleanService(service, serviceGroup)),
+>>>>>>> video-background
   }));
 }
 
 export async function getServiceItem(group, service) {
-  const configuredServices = await servicesFromConfig();
+  const services = await servicesFromConfig();
+  const backpacks = await backpacksFromConfig();
+  const groupFlat = [...services, ...backpacks].map((g) => ({
+    ...g,
+    services: g.services.map((s) => (s.type === "grouped-service" ? s.services : [s])).flat(1),
+  }));
+
+  const configuredServices = groupFlat.reduce((acc, curr) => {
+    const index = acc.findIndex((g) => g.name === curr.name);
+    if (index === -1) {
+      acc.push(curr);
+    } else {
+      acc[index] = { ...acc, ...curr, services: [...acc[index].services, ...curr.services] };
+    }
+    return acc;
+  }, []);
 
   const serviceGroup = configuredServices.find((g) => g.name === group);
+
   if (serviceGroup) {
     const serviceEntry = serviceGroup.services.find((s) => s.name === service);
     if (serviceEntry) return serviceEntry;

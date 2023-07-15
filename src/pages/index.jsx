@@ -4,7 +4,7 @@ import Head from "next/head";
 import dynamic from "next/dynamic";
 import classNames from "classnames";
 import { useTranslation } from "next-i18next";
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext, useState, useMemo, useRef } from "react";
 import { BiError } from "react-icons/bi";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -18,11 +18,12 @@ import { getSettings } from "utils/config/config";
 import { ColorContext } from "utils/contexts/color";
 import { ThemeContext } from "utils/contexts/theme";
 import { SettingsContext } from "utils/contexts/settings";
-import { bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
+import { backpacksResponse, bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
 import ErrorBoundary from "components/errorboundry";
 import themes from "utils/styles/themes";
 import QuickLaunch from "components/quicklaunch";
 import { getStoredProvider, searchProviders } from "components/widgets/search/search";
+import Backpack from "components/backpacks/item";
 
 const ThemeToggle = dynamic(() => import("components/toggles/theme"), {
   ssr: false,
@@ -47,6 +48,7 @@ export async function getStaticProps() {
     const services = await servicesResponse();
     const bookmarks = await bookmarksResponse();
     const widgets = await widgetsResponse();
+    const backpacks = await backpacksResponse();
 
     return {
       props: {
@@ -56,6 +58,7 @@ export async function getStaticProps() {
           "/api/bookmarks": bookmarks,
           "/api/widgets": widgets,
           "/api/hash": false,
+          "/api/backpacks": backpacks,
         },
         ...(await serverSideTranslations(settings.language ?? "en")),
       },
@@ -72,6 +75,7 @@ export async function getStaticProps() {
           "/api/bookmarks": [],
           "/api/widgets": [],
           "/api/hash": false,
+          "/api/backpacks": [],
         },
         ...(await serverSideTranslations("en")),
       },
@@ -163,11 +167,31 @@ const headerStyles = {
   boxedWidgets: "m-4 mb-0 sm:m-8 sm:mb-0 sm:mt-1",
 };
 
+const columnsMap = [
+  "grid-cols-1",
+  "grid-cols-1",
+  "grid-cols-1 @[34rem]:grid-cols-2",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5 @[102rem]:grid-cols-6",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5 @[102rem]:grid-cols-6 [119rem]:grid-cols-7",
+  "grid-cols-1 @[34rem]:grid-cols-2 @[51rem]:grid-cols-3 @[68rem]:grid-cols-4 @[85rem]:grid-cols-5 @[102rem]:grid-cols-6 [119rem]:grid-cols-7 [136rem]:grid-cols-8",
+];
+
+const columnsRemSizeMap = [1, 1, 17, 17, 17, 17, 17, 17, 17, 17];
+
 function Home({ initialSettings }) {
   const { i18n } = useTranslation();
   const { theme, setTheme } = useContext(ThemeContext);
   const { color, setColor } = useContext(ColorContext);
   const { settings, setSettings } = useContext(SettingsContext);
+  const [backpackContainerWidth, setBackpackContainerWidth] = useState(0);
+
+  const [childrensToSlice, setChildrensToSlice] = useState(0);
+
+  const containerRef = useRef();
+  const backpackContainerRef = useRef();
 
   useEffect(() => {
     setSettings(initialSettings);
@@ -176,8 +200,64 @@ function Home({ initialSettings }) {
   const { data: services } = useSWR("/api/services");
   const { data: bookmarks } = useSWR("/api/bookmarks");
   const { data: widgets } = useSWR("/api/widgets");
+  const { data: backpacks } = useSWR("/api/backpacks");
 
-  const servicesAndBookmarks = [...services.map(sg => sg.services).flat(), ...bookmarks.map(bg => bg.bookmarks).flat()]
+  const widthServices = useMemo(() => {
+    const widthRatio = settings?.main?.widthRatio?.split("/") || [1, 1];
+    return widthRatio[0] / widthRatio[1];
+  }, [settings?.main?.widthRatio]);
+
+  const numberOfServicesWithoutFullRows = useMemo(
+    () =>
+      services
+        .filter((e) => e)
+        .filter((g) => {
+          const style = initialSettings.layout?.[g.name]?.style;
+          if (style?.includes("full")) return false;
+          return true;
+        }).length,
+    [services, initialSettings.layout]
+  );
+
+  const servicesTopRows = useMemo(() => {
+    const indexesToSlice = [];
+    let foundIndexes = 0;
+    for (let i = services.filter((e) => e).length - 1; i > 0; i -= 1) {
+      if (foundIndexes === childrensToSlice) break;
+      const style = initialSettings.layout?.[services.filter((e) => e)?.[i].name]?.style;
+      if (!style?.includes("full")) foundIndexes += 1;
+      indexesToSlice.push(i);
+    }
+
+    const indexToSliceStart = indexesToSlice.sort().shift() || services.filter((e) => e).length;
+
+    return indexesToSlice.length > 0 ? services.filter((v, i) => i < indexToSliceStart) : services.filter((e) => e);
+  }, [services, childrensToSlice, initialSettings.layout]);
+
+  const servicesBottomRows = useMemo(() => {
+    if (childrensToSlice === 0) return [];
+    const indexesToSlice = [];
+    let foundIndexes = 0;
+    for (let i = services.filter((e) => e).length - 1; i > 0; i -= 1) {
+      if (foundIndexes === childrensToSlice) break;
+      const style = initialSettings.layout?.[services.filter((e) => e)?.[i].name]?.style;
+      if (!style?.includes("full")) foundIndexes += 1;
+      indexesToSlice.push(i);
+    }
+
+    const indexToSliceStart = indexesToSlice.sort().shift() || services.filter((e) => e).length;
+
+    return indexesToSlice.length > 0 ? services.filter((v, i) => i >= indexToSliceStart) : [];
+  }, [services, childrensToSlice, initialSettings.layout]);
+
+  const servicesAndBookmarks = [
+    ...services
+      .map((sg) => sg.services)
+      .flat(1)
+      .map((service) => (service.type === "grouped-service" ? service.services : service))
+      .flat(1),
+    ...bookmarks.map((bg) => bg.bookmarks).flat(),
+  ];
 
   useEffect(() => {
     if (settings.language) {
@@ -196,15 +276,15 @@ function Home({ initialSettings }) {
   const [searching, setSearching] = useState(false);
   const [searchString, setSearchString] = useState("");
   let searchProvider = null;
-  const searchWidget = Object.values(widgets).find(w => w.type === "search");
+  const searchWidget = Object.values(widgets).find((w) => w.type === "search");
   if (searchWidget) {
     if (Array.isArray(searchWidget.options?.provider)) {
       // if search provider is a list, try to retrieve from localstorage, fall back to the first
       searchProvider = getStoredProvider() ?? searchProviders[searchWidget.options.provider[0]];
-    } else if (searchWidget.options?.provider === 'custom') {
+    } else if (searchWidget.options?.provider === "custom") {
       searchProvider = {
-        url: searchWidget.options.url
-      }
+        url: searchWidget.options.url,
+      };
     } else {
       searchProvider = searchProviders[searchWidget.options?.provider];
     }
@@ -223,12 +303,66 @@ function Home({ initialSettings }) {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     return function cleanup() {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let i = 0; i < entries.length; i += 1) {
+        const entry = entries[i];
+        const { width } = entry.contentRect;
+        const remSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+        const itemRemSize =
+          columnsRemSizeMap[parseInt(settings?.main?.columns || services.filter((v) => v).length || 1, 10)];
+
+        const remWidth = width / remSize;
+        const maxChildrenFit = Math.floor(remWidth / itemRemSize);
+        if (
+          !itemRemSize ||
+          !maxChildrenFit ||
+          numberOfServicesWithoutFullRows < maxChildrenFit ||
+          !(remWidth / itemRemSize > 1)
+        )
+          return setChildrensToSlice(0);
+
+        const toSlice = numberOfServicesWithoutFullRows % Math.min(settings?.main?.columns, maxChildrenFit || 1);
+        setChildrensToSlice(toSlice);
+      }
+      return true;
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
     }
-  })
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [containerRef, numberOfServicesWithoutFullRows, settings?.main?.columns, services]);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let i = 0; i < entries.length; i += 1) {
+        const entry = entries[i];
+        const { width } = entry.contentRect;
+        setBackpackContainerWidth(width);
+      }
+      return true;
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(backpackContainerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [backpackContainerRef]);
 
   return (
     <>
@@ -254,13 +388,15 @@ function Home({ initialSettings }) {
         />
         <meta name="theme-color" content={themes[initialSettings.color || "slate"][initialSettings.theme || "dark"]} />
       </Head>
+      {initialSettings?.background?.video && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center	">
+          <video className="object-cover w-full h-full" playsInline autoPlay muted loop>
+            <source src={initialSettings?.background?.video} />
+          </video>
+        </div>
+      )}
       <div className="relative container m-auto flex flex-col justify-start z-10 h-full">
-        <div
-          className={classNames(
-            "flex flex-row flex-wrap  justify-between",
-            headerStyles[headerStyle]
-          )}
-        >
+        <div className={classNames("flex flex-row flex-wrap  justify-between", headerStyles[headerStyle])}>
           <QuickLaunch
             servicesAndBookmarks={servicesAndBookmarks}
             searchString={searchString}
@@ -274,45 +410,104 @@ function Home({ initialSettings }) {
               {widgets
                 .filter((widget) => !rightAlignedWidgets.includes(widget.type))
                 .map((widget, i) => (
-                  <Widget key={i} widget={widget} style={{ header: headerStyle, isRightAligned: false}} />
+                  <Widget key={i} widget={widget} style={{ header: headerStyle, isRightAligned: false }} />
                 ))}
 
-              <div className={classNames(
-                "m-auto flex flex-wrap grow sm:basis-auto justify-between md:justify-end",
-                headerStyle === "boxedWidgets" ? "sm:ml-4" : "sm:ml-2"
-              )}>
+              <div
+                className={classNames(
+                  "m-auto flex flex-wrap grow sm:basis-auto justify-between md:justify-end",
+                  headerStyle === "boxedWidgets" ? "sm:ml-4" : "sm:ml-2"
+                )}
+              >
                 {widgets
                   .filter((widget) => rightAlignedWidgets.includes(widget.type))
                   .map((widget, i) => (
-                    <Widget key={i} widget={widget} style={{ header: headerStyle, isRightAligned: true}} />
+                    <Widget key={i} widget={widget} style={{ header: headerStyle, isRightAligned: true }} />
                   ))}
               </div>
             </>
           )}
         </div>
-
-        {services?.length > 0 && (
-          <div className="flex flex-wrap p-4 sm:p-8 sm:pt-4 items-start pb-2">
-            {services.map((group) => (
-              <ServicesGroup 
-                key={group.name}
-                group={group.name}
-                services={group}
-                layout={initialSettings.layout?.[group.name]}
-                fiveColumns={settings.fiveColumns} 
-                disableCollapse={settings.disableCollapse} />
-            ))}
+        {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
+        {backpacks.length > 0 && (
+          <div className={`flex p-4 sm:p-8 sm:pt-4 w-full ${settings?.main?.position === "bottom" && "flex-grow"}`}>
+            <div
+              ref={backpackContainerRef}
+              className={`flex flex-row flex-wrap gap-2 ${settings?.main?.position === "bottom" && "flex-grow"}`}
+            >
+              {backpacks.map((backpack, i) => (
+                <Backpack
+                  key={i}
+                  backpack={backpack}
+                  containerWidth={backpackContainerWidth}
+                  i={i}
+                  serviceGroupsLength={
+                    services.filter(
+                      (group) => group && initialSettings?.layout?.[group.name]?.style?.includes("auto-row")
+                    ).length
+                  }
+                  backpacksLength={backpacks.filter((e) => e).length}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+        {servicesTopRows?.length > 0 && (
+          <div className="@container" ref={containerRef}>
+            <div
+              className={`grid ${
+                columnsMap[settings?.main?.columns || services.length]
+              } p-4 sm:p-8 sm:pt-4 items-start pb-0 sm:pb-0 mx-auto`}
+              style={{ width: `${widthServices * 100 || 100}%` }}
+            >
+              {servicesTopRows.map((group) => (
+                <ServicesGroup
+                  key={group.name}
+                  group={group.name}
+                  services={group}
+                  layout={initialSettings.layout?.[group.name]}
+                />
+              ))}
+              {servicesBottomRows?.length > 0 && (
+                <div
+                  className={`grid ${
+                    columnsMap[
+                      servicesBottomRows.filter((g) => {
+                        const style = initialSettings.layout?.[g.name]?.style;
+                        if (!style?.includes("auto-full")) return true;
+                        return false;
+                      }).length
+                    ]
+                  } items-start mx-auto col-span-full w-full`}
+                >
+                  {servicesBottomRows.map((group) => (
+                    <ServicesGroup
+                      key={group.name}
+                      group={group.name}
+                      services={group}
+                      layout={initialSettings.layout?.[group.name]}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {bookmarks?.length > 0 && (
-          <div className={`grow flex flex-wrap pt-0 p-4 sm:p-8 gap-2 grid-cols-1 lg:grid-cols-2 lg:grid-cols-${Math.min(6, bookmarks.length)}`}>
-            {bookmarks.map((group) => (
-              <BookmarksGroup
-                key={group.name}
-                group={group}
-                disableCollapse={settings.disableCollapse} />
-            ))}
+          <div
+            className={`grow flex flex-wrap pt-0 sm:pb-0 p-4 pb-0 sm:p-8 gap-2 grid-cols-1 lg:grid-cols-2 lg:grid-cols-${Math.min(
+              6,
+              bookmarks.length
+            )}`}
+          >
+            {bookmarks.map((group) =>
+              Number.isNaN(parseInt(group?.name, 10)) ? (
+                <BookmarksGroup key={group.name} group={group} disableCollapse={settings.disableCollapse} />
+              ) : (
+                <div key={group.name} />
+              )
+            )}
           </div>
         )}
 
@@ -323,9 +518,7 @@ function Home({ initialSettings }) {
             {!initialSettings?.theme && <ThemeToggle />}
           </div>
 
-          <div className="flex mt-4 w-full justify-end">
-            {!initialSettings?.hideVersion && <Version />}
-          </div>
+          <div className="flex mt-4 w-full justify-end">{!initialSettings?.hideVersion && <Version />}</div>
         </div>
       </div>
     </>
@@ -340,7 +533,7 @@ export default function Wrapper({ initialSettings, fallback }) {
   if (initialSettings && initialSettings.background) {
     let opacity = initialSettings.backgroundOpacity ?? 1;
     let backgroundImage = initialSettings.background;
-    if (typeof initialSettings.background === 'object') {
+    if (typeof initialSettings.background === "object") {
       backgroundImage = initialSettings.background.image;
       backgroundBlur = initialSettings.background.blur !== undefined;
       backgroundSaturate = initialSettings.background.saturate !== undefined;
@@ -353,7 +546,7 @@ export default function Wrapper({ initialSettings, fallback }) {
         rgb(var(--bg-color) / ${opacityValue}),
         rgb(var(--bg-color) / ${opacityValue})
       ),
-      url(${backgroundImage})`;
+      ${(backgroundImage && `url(${backgroundImage})`) || ""}`;
     wrappedStyle.backgroundPosition = "center";
     wrappedStyle.backgroundSize = "cover";
   }
@@ -373,13 +566,15 @@ export default function Wrapper({ initialSettings, fallback }) {
         style={wrappedStyle}
       >
         <div
-        id="inner_wrapper"
-        className={classNames(
-          'fixed overflow-auto w-full h-full',
-          backgroundBlur && `backdrop-blur${initialSettings.background.blur.length ? '-' : ""}${initialSettings.background.blur}`,
-          backgroundSaturate && `backdrop-saturate-${initialSettings.background.saturate}`,
-          backgroundBrightness && `backdrop-brightness-${initialSettings.background.brightness}`,
-        )}>
+          id="inner_wrapper"
+          className={classNames(
+            "fixed overflow-auto w-full h-full",
+            backgroundBlur &&
+              `backdrop-blur${initialSettings.background.blur.length ? "-" : ""}${initialSettings.background.blur}`,
+            backgroundSaturate && `backdrop-saturate-${initialSettings.background.saturate}`,
+            backgroundBrightness && `backdrop-brightness-${initialSettings.background.brightness}`
+          )}
+        >
           <Index initialSettings={initialSettings} fallback={fallback} />
         </div>
       </div>
