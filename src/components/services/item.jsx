@@ -93,7 +93,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
             >
               <div
                 className={`max-w-2xl w-auto duration-500 text-sm text-left ease-linear transition-all text-ellipsis whitespace-nowrap overflow-hidden ... ${
-                  settings?.layout?.[group]?.style?.includes("auto") && "max-w-[0]"
+                  settings?.layout?.[group]?.style?.includes("auto") && !isHovered && "max-w-[0]"
                 }`}
               >
                 <div className="max-w-full px-2">
@@ -136,9 +136,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                 type="button"
                 onClick={() => (statsOpen ? closeStats() : setStatsOpen(true))}
                 className={`flex-shrink-0 flex items-center justify-center cursor-pointer ${
-                  ((settings?.status?.type === "dot" ||
-                    settings?.status?.type === "dot-outline" ||
-                    settings?.layout?.[group]?.style?.includes("auto-row")) &&
+                  ((settings?.status?.type.includes("dot") || settings?.layout?.[group]?.style?.includes("auto-row")) &&
                     "p-2 absolute") ||
                   ""
                 } ${!settings?.layout?.[group]?.style?.includes("auto-row") && "-top-0.5 -right-2.5"} ${
@@ -148,9 +146,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
                 <Status
                   service={service}
                   isDot={
-                    settings?.status?.type === "dot" ||
-                    settings?.status?.type === "dot-outline" ||
-                    settings?.layout?.[group]?.style?.includes("auto-row")
+                    settings?.status?.type.includes("dot") || settings?.layout?.[group]?.style?.includes("auto-row")
                   }
                 />
                 <span className="sr-only">View container stats</span>
