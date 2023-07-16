@@ -245,23 +245,13 @@ For configuration options, examples and more, [please check out the original sit
 
 ### With Docker
 
-Image on docker hub comming soon.
-
-Here are the complete commands you will need to execute:
-
-```bash
-git clone https://github.com/Lukylix/Bulby.git
-cd Bulby
-docker build -t bulby .
-```
-
 Using docker compose:
 
 ```yaml
 version: "3.3"
 services:
   bulby:
-    image: bulby:latest
+    image: ghcr.io/lukylix/bulby:latest
     container_name: bulby
     ports:
       - 3000:3000
