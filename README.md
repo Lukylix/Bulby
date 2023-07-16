@@ -20,6 +20,7 @@
   <img src="images/5.png" width="19%" />
   <img src="images/6.png" width="19%" />
 </p>
+
 <p align="center">
 <a href='https://ko-fi.com/lukylix' target='_blank'><img height='20' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee '/>
 </p>
@@ -60,6 +61,9 @@ Due to the rigorous entry criteria for pull requests in the original repository,
 
 - **Possibility to hide group name**:  
   You have the option to hide the group name by specifying a number as the column name.
+
+- **Possibility to position main elements at the bottom**:
+  This feature provides the capability to position services section, at the bottom of the webpage. With this option, you can choose to place essential components towards the bottom of the page, offering a new view to your background.
 
 ### Configuration
 
@@ -206,6 +210,18 @@ In the `services.yaml` or `backpacks.yml` file, you can utilize the following sy
 ```
 
 By setting the group name to a number, such as `1`, the group name will be hidden. However, please note that group names must be unique across all groups. Each group should have a distinct and different name to ensure proper organization and differentiation between the groups on your website.
+
+### Possibility to position main elements at the bottom
+
+In the `settings.yaml` file, you have the option to position the main elements at the bottom of the webpage. By specifying the following configuration:
+
+```yaml
+---
+main:
+  position: bottom
+```
+
+You can set the `position` property to "bottom". This configuration allows you to alter the default behavior where main elements are typically positioned at the top of the webpage.
 
 ## Features
 
