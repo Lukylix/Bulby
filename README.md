@@ -78,7 +78,11 @@ In the `services.yaml` you can create sub-columns.
 ---
 - My Group Name:
     - 3:
-        - Plausible: { Other Usual properties }
+        - Portainer:
+            href: https://portainer.example.com/
+            icon: portainer.png
+            server: my-docker
+            container: portainer
 ```
 
 The number represent the number of subcolumns.
@@ -202,11 +206,11 @@ In the `services.yaml` or `backpacks.yml` file, you can utilize the following sy
 - 1:
     - Proxmox:
         icon: proxmox
-        href: https://proxmox.iloa.dev
-        ping: https://proxmox.iloa.dev
+        href: https://proxmox.example.com
+        ping: https://proxmox.example.com
 
     - Portainer:
-        href: https://portainer.iloa.dev/
+        href: https://portainer.example.com/
         icon: portainer.png
         server: my-docker
         container: portainer
