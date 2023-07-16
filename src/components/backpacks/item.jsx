@@ -24,9 +24,7 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
 
   const status = useBackpackStatus(service.services, group);
 
-  const headerGridClass = `grid-cols-[${(settings?.backpacks?.[group]?.icon && "auto_") || ""}${
-    ((service.name || service.description) && "1fr") || ""
-  }]`;
+  const headerGridClass = `grid-cols-[auto_${((service.name || service.description) && "1fr") || ""}]`;
 
   const widthBacpackRatio = useMemo(() => {
     const widthRatio = settings?.backpacks?.[group]?.widthRatio?.split("/") || [1, 1];
@@ -115,12 +113,11 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
             tabIndex={0}
           >
             <div className={`grid ${headerGridClassMap[headerGridClass]}  select-none w-fit overflow-hidden`}>
-              {settings?.backpacks?.[group]?.icon && (
-                <div className="flex pl-1 pr-1 items-center justify-left w-10">
-                  <ResolvedIcon icon={settings?.backpacks?.[group]?.icon || "mdi-bag-personal-outline"} />
-                </div>
-              )}
-              <div className="w-full overflow-hidden box-border flex items-center py-2 justify-between rounded-r-md w-full whitespace-nowrap">
+              <div className="flex pl-1 pr-1 items-center justify-left w-10">
+                <ResolvedIcon icon={settings?.backpacks?.[group]?.icon || "mdi-bag-personal-outline"} />
+              </div>
+
+              <div className="w-full overflow-hidden box-border flex items-center py-2 justify-between rounded-r-md whitespace-nowrap">
                 <div
                   className={`w-full text-sm text-left ${
                     (service.widget || !settings?.backpacks?.[group]?.icon) &&
