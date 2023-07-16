@@ -430,7 +430,7 @@ function Home({ initialSettings }) {
         </div>
         {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
         {backpacks.length > 0 && (
-          <IsInsideBackpackProvider value={true}>
+          <IsInsideBackpackProvider value>
             <div className={`flex p-4 sm:p-8 sm:pt-4 w-full ${settings?.main?.position === "bottom" && "flex-grow"}`}>
               <div
                 ref={backpackContainerRef}
