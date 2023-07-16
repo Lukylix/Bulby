@@ -65,6 +65,9 @@ Due to the rigorous entry criteria for pull requests in the original repository,
 - **Possibility to position main elements at the bottom**:
   This feature provides the capability to position services section, at the bottom of the webpage. With this option, you can choose to place essential components towards the bottom of the page, offering a new view to your background.
 
+- **Specify main columns number**:
+  This feature allows you to specify the number of columns for the main content section of your homepage.
+
 ### Configuration
 
 #### Sub columns layout
@@ -211,7 +214,7 @@ In the `services.yaml` or `backpacks.yml` file, you can utilize the following sy
 
 By setting the group name to a number, such as `1`, the group name will be hidden. However, please note that group names must be unique across all groups. Each group should have a distinct and different name to ensure proper organization and differentiation between the groups on your website.
 
-### Possibility to position main elements at the bottom
+#### Possibility to position main elements at the bottom
 
 In the `settings.yaml` file, you have the option to position the main elements at the bottom of the webpage. By specifying the following configuration:
 
@@ -222,6 +225,18 @@ main:
 ```
 
 You can set the `position` property to "bottom". This configuration allows you to alter the default behavior where main elements are typically positioned at the top of the webpage.
+
+#### Specify main columns number
+
+In the `settings.yaml` file, you can specify the number of columns for the main content section of your website. Here is an example configuration:
+
+```yaml
+---
+main:
+  columns: 4
+```
+
+By setting the `columns` property to `4`, you can create a layout where the main content section is divided into four columns. This allows you to effectively organize and present your content in a multi-column format.
 
 ## Features
 
