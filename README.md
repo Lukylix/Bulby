@@ -30,7 +30,7 @@
 This project presents an enhanced version of the [homepage](https://github.com/benphelps/homepage), incorporating new visual functionalities to provide a refreshing and engaging user experience.  
 Due to the rigorous entry criteria for pull requests in the original repository, I was unable to meet the requirements. As a result, I decided to create this project as an alternative solution to assist anyone who is looking to incorporate the new functionalities.
 
-## New functionalities
+## ✨ 11 New functionalities!
 
 - **Sub columns layout**:  
   This feature allows users to create sub-columns within a column, enabling more flexibility and organization in structuring content on the website.
