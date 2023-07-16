@@ -5,7 +5,7 @@ pipeline {
     stage("Build") {
       steps {
         script {
-          app = docker.build("bulby")
+          app = docker.build("lukylix/bulby")
         }
       }
     }
