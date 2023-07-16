@@ -24,6 +24,7 @@ import themes from "utils/styles/themes";
 import QuickLaunch from "components/quicklaunch";
 import { getStoredProvider, searchProviders } from "components/widgets/search/search";
 import Backpack from "components/backpacks/item";
+import { IsInsideBackpackProvider } from "utils/contexts/isInsideBackpack";
 
 const ThemeToggle = dynamic(() => import("components/toggles/theme"), {
   ssr: false,
@@ -429,68 +430,72 @@ function Home({ initialSettings }) {
         </div>
         {backpacks.length === 0 && settings?.main?.position === "bottom" && <div className="flex-grow" />}
         {backpacks.length > 0 && (
-          <div className={`flex p-4 sm:p-8 sm:pt-4 w-full ${settings?.main?.position === "bottom" && "flex-grow"}`}>
-            <div
-              ref={backpackContainerRef}
-              className={`flex flex-row flex-wrap gap-2 ${settings?.main?.position === "bottom" && "flex-grow"}`}
-            >
-              {backpacks.map((backpack, i) => (
-                <Backpack
-                  key={i}
-                  backpack={backpack}
-                  containerWidth={backpackContainerWidth}
-                  i={i}
-                  serviceGroupsLength={
-                    services.filter(
-                      (group) => group && initialSettings?.layout?.[group.name]?.style?.includes("auto-row")
-                    ).length
-                  }
-                  backpacksLength={backpacks.filter((e) => e).length}
-                />
-              ))}
+          <IsInsideBackpackProvider value={true}>
+            <div className={`flex p-4 sm:p-8 sm:pt-4 w-full ${settings?.main?.position === "bottom" && "flex-grow"}`}>
+              <div
+                ref={backpackContainerRef}
+                className={`flex flex-row flex-wrap gap-2 ${settings?.main?.position === "bottom" && "flex-grow"}`}
+              >
+                {backpacks.map((backpack, i) => (
+                  <Backpack
+                    key={i}
+                    backpack={backpack}
+                    containerWidth={backpackContainerWidth}
+                    i={i}
+                    serviceGroupsLength={
+                      services.filter(
+                        (group) => group && initialSettings?.layout?.[group.name]?.style?.includes("auto-row")
+                      ).length
+                    }
+                    backpacksLength={backpacks.filter((e) => e).length}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          </IsInsideBackpackProvider>
         )}
         {servicesTopRows?.length > 0 && (
-          <div className="@container" ref={containerRef}>
-            <div
-              className={`grid ${
-                columnsMap[settings?.main?.columns || services.length]
-              } p-4 sm:p-8 sm:pt-4 items-start pb-0 sm:pb-0 mx-auto`}
-              style={{ width: `${widthServices * 100 || 100}%` }}
-            >
-              {servicesTopRows.map((group) => (
-                <ServicesGroup
-                  key={group.name}
-                  group={group.name}
-                  services={group}
-                  layout={initialSettings.layout?.[group.name]}
-                />
-              ))}
-              {servicesBottomRows?.length > 0 && (
-                <div
-                  className={`grid ${
-                    columnsMap[
-                      servicesBottomRows.filter((g) => {
-                        const style = initialSettings.layout?.[g.name]?.style;
-                        if (!style?.includes("auto-full")) return true;
-                        return false;
-                      }).length
-                    ]
-                  } items-start mx-auto col-span-full w-full`}
-                >
-                  {servicesBottomRows.map((group) => (
-                    <ServicesGroup
-                      key={group.name}
-                      group={group.name}
-                      services={group}
-                      layout={initialSettings.layout?.[group.name]}
-                    />
-                  ))}
-                </div>
-              )}
+          <IsInsideBackpackProvider value={false}>
+            <div className="@container" ref={containerRef}>
+              <div
+                className={`grid ${
+                  columnsMap[settings?.main?.columns || services.length]
+                } p-4 sm:p-8 sm:pt-4 items-start pb-0 sm:pb-0 mx-auto`}
+                style={{ width: `${widthServices * 100 || 100}%` }}
+              >
+                {servicesTopRows.map((group) => (
+                  <ServicesGroup
+                    key={group.name}
+                    group={group.name}
+                    services={group}
+                    layout={initialSettings.layout?.[group.name]}
+                  />
+                ))}
+                {servicesBottomRows?.length > 0 && (
+                  <div
+                    className={`grid ${
+                      columnsMap[
+                        servicesBottomRows.filter((g) => {
+                          const style = initialSettings.layout?.[g.name]?.style;
+                          if (!style?.includes("auto-full")) return true;
+                          return false;
+                        }).length
+                      ]
+                    } items-start mx-auto col-span-full w-full`}
+                  >
+                    {servicesBottomRows.map((group) => (
+                      <ServicesGroup
+                        key={group.name}
+                        group={group.name}
+                        services={group}
+                        layout={initialSettings.layout?.[group.name]}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </IsInsideBackpackProvider>
         )}
 
         {bookmarks?.length > 0 && (

@@ -10,10 +10,13 @@ import Docker from "widgets/docker/component";
 import Kubernetes from "widgets/kubernetes/component";
 import { SettingsContext } from "utils/contexts/settings";
 import ResolvedIcon from "components/resolvedicon";
+import IsInsideBackpackContext from "utils/contexts/isInsideBackpack";
 
-export default function Item({ service, group, isInsideBackpack = false }) {
+export default function Item({ service, group }) {
   const hasLink = service.href && service.href !== "#";
   const { settings } = useContext(SettingsContext);
+  const { isInsideBackpack } = useContext(IsInsideBackpackContext);
+
   const showStats = service.showStats === false ? false : settings.showStats;
   const [statsOpen, setStatsOpen] = useState(service.showStats);
   const [statsClosing, setStatsClosing] = useState(false);
@@ -47,8 +50,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
       <div
         className={`${hasLink ? "cursor-pointer " : ""} backdrop-blur-[4px] ${
           (settings?.background?.image || settings?.background?.video) &&
-          !isInsideBackpack &&
-          "bg-white/[0.5] hover:bg-white/[0.3] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
+          "bg-white/[0.2] hover:bg-white/[0.1] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
         } ${
           isInsideBackpack
             ? "bg-theme-200/50 dark:bg-theme-900/70 hover:bg-theme-200/30 dark:hover:bg-theme-900/30"
@@ -205,7 +207,7 @@ export default function Item({ service, group, isInsideBackpack = false }) {
           </div>
         )}
 
-        {service.widget && <Widget service={service} />}
+        {service.widget && <Widget service={service} isInsideBackpack={isInsideBackpack} />}
       </div>
     </li>
   );

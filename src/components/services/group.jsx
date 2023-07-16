@@ -6,9 +6,12 @@ import { useContext } from "react";
 import List from "components/services/list";
 import ResolvedIcon from "components/resolvedicon";
 import { SettingsContext } from "utils/contexts/settings";
+import IsInsideBackpackContext from "utils/contexts/isInsideBackpack";
 
-export default function ServicesGroup({ group, services, layout, isInsideBackpack = false }) {
+export default function ServicesGroup({ group, services, layout }) {
   const { settings } = useContext(SettingsContext);
+  const { isInsideBackpack } = useContext(IsInsideBackpackContext);
+
   return (
     <div key={services.name} className={`flex-1 p-1 @container ${layout?.style?.includes("full") && "col-span-full"}`}>
       <Disclosure defaultOpen>
@@ -45,7 +48,7 @@ export default function ServicesGroup({ group, services, layout, isInsideBackpac
               leaveTo="transform scale-75 opacity-0"
             >
               <Disclosure.Panel>
-                <List group={group} services={services.services} layout={layout} isInsideBackpack={isInsideBackpack} />
+                <List group={group} services={services.services} layout={layout} />
               </Disclosure.Panel>
             </Transition>
           </>

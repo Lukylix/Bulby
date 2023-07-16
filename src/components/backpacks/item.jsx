@@ -94,7 +94,7 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
     <div
       className={`flex flex-col @container ${
         (settings?.background?.image || settings?.background?.video) &&
-        "bg-white/[0.5] hover:bg-white/[0.3] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
+        "bg-white/[0.2] hover:bg-white/[0.1] dark:bg-black/[0.7] dark:hover:bg-black/[0.3]"
       } overflow-hidden h-min max-h-[calc(32px_+_1rem)] max-w-full p-1 backdrop-blur-[4px] rounded-md font-medium text-theme-700 dark:text-theme-200 dark:hover:text-theme-300 shadow-md shadow-theme-900/10 dark:shadow-theme-900/20 bg-theme-100/20 hover:bg-theme-300/20 dark:bg-white/5 dark:hover:bg-white/10 `}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...propsStyleContainer}
@@ -112,7 +112,9 @@ function BackpackHeader({ service, group, children, containerWidth, serviceGroup
             type="button"
             tabIndex={0}
           >
-            <div className={`grid ${headerGridClassMap[headerGridClass]}  select-none w-fit overflow-hidden`}>
+            <div
+              className={`grid ${headerGridClassMap[headerGridClass]} dark:text-theme-200 dark:hover:text-theme-300 text-theme-100 select-none w-fit overflow-hidden`}
+            >
               <div className="flex pl-1 pr-1 items-center justify-left w-10">
                 <ResolvedIcon icon={settings?.backpacks?.[group]?.icon || "mdi-bag-personal-outline"} />
               </div>
@@ -167,7 +169,6 @@ export default function Backpack({ backpack, i, serviceGroupsLength, backpacksLe
         layout={{
           columns: settings?.backpacks?.[backpack.name]?.columns || 2,
         }}
-        isInsideBackpack
       />
     </BackpackHeader>
   );

@@ -1,7 +1,8 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 
 import Item from "components/services/item";
+import IsInsideBackpackContext from "utils/contexts/isInsideBackpack";
 
 const columnMap = [
   "grid-cols-1",
@@ -69,19 +70,12 @@ const Service = memo(
 
 // eslint-disable-next-line react/display-name
 const List = memo(
-  ({
-    group,
-    services,
-    layout,
-    isGroup = false,
-    propagate = [],
-    setPropagate,
-    isStyleCombined = false,
-    isInsideBackpack = false,
-  }) => {
+  ({ group, services, layout, isGroup = false, propagate = [], setPropagate, isStyleCombined = false }) => {
     const containerRef = useRef(null);
     const [childrensToSlice, setChildrensToSlice] = useState(0);
     const [servicesToPropagate, setServicesToPropagate] = useState({});
+
+    const { isInsideBackpack } = useContext(IsInsideBackpackContext);
 
     const numberOfServices = useMemo(() => [...propagate, ...services].filter((e) => e).length, [propagate, services]);
     const servicesTopRows = useMemo(

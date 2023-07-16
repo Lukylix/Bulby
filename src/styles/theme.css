@@ -9,9 +9,9 @@
   --color-700: 40 40 40;
   --color-800: 255 255 255;
   --color-900: 255 255 255;
-
-  --color-logo-start: 128 128 128 / 20%;
-  --color-logo-stop: 128 128 128 / 40%;
+  --color-logo: 255 255 255;
+  --color-logo-start: 255, 255, 255, 0.2;
+  --color-logo-stop: 255, 255, 255, 0.4;
 }
 
 .theme-slate {
