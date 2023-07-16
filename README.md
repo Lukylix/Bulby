@@ -20,6 +20,9 @@
   <img src="images/5.png" width="19%" />
   <img src="images/6.png" width="19%" />
 </p>
+<p align="center">
+<a href='https://ko-fi.com/lukylix' target='_blank'><img height='20' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee '/>
+</p>
 
 ## Introduction
 
